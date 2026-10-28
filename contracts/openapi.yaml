@@ -1,0 +1,2837 @@
+openapi: 3.1.0
+info:
+  title: Flamingo Next Studio API
+  version: 1.0.0
+  description: Independent new application. Reference API contract, not a claim of deployed endpoints. All mutations
+    audited, version-checked and authorized. No original manhwa-project dependencies.
+servers:
+- url: https://api.staging.NEW-FLAMINGO-DOMAIN.invalid/api/v1
+  description: Replace with separately created staging endpoint
+- url: http://localhost:8000/api/v1
+  description: Local independent Docker Compose
+security:
+- OwnerSession: []
+tags:
+- name: system
+- name: research
+- name: series
+- name: episodes
+- name: productions
+- name: quality
+- name: packaging
+- name: publishing
+- name: autopilot
+- name: operations
+- name: analytics
+- name: accounts
+- name: rights
+paths:
+  /healthz:
+    get:
+      tags:
+      - system
+      summary: Liveness without secrets
+      operationId: get_healthz
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security: []
+  /readyz:
+    get:
+      tags:
+      - system
+      summary: Readiness without secrets
+      operationId: get_readyz
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security: []
+  /me:
+    get:
+      tags:
+      - system
+      summary: Authenticated user and role
+      operationId: get_me
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /capabilities:
+    get:
+      tags:
+      - system
+      summary: Current enabled, disabled and unavailable modules
+      operationId: get_capabilities
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /research/candidates:
+    get:
+      tags:
+      - research
+      summary: List dated, evidence-backed candidate rankings
+      operationId: get_research_candidates
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResearchCandidate'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /research/runs:
+    post:
+      tags:
+      - research
+      summary: Queue bounded research observation run
+      operationId: post_research_runs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResearchRun'
+      parameters:
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: &id001
+          type: string
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+  /research/evidence/{id}:
+    get:
+      tags:
+      - research
+      summary: One immutable research/source evidence record
+      operationId: get_research_evidence_id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvidenceRef'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - &id003
+        name: id
+        in: path
+        required: true
+        schema: &id002
+          type: string
+          format: uuid
+  /research/candidates/{candidate_id}/greenlight:
+    post:
+      tags:
+      - research
+      summary: Greenlight a candidate pilot with rights and cost preflight
+      operationId: post_research_candidates_candidate_id_greenlight
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: candidate_id
+        in: path
+        required: true
+        schema: *id002
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Greenlight'
+  /series:
+    get:
+      tags:
+      - series
+      summary: List canonical works
+      operationId: get_series
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Series'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+      - series
+      summary: Create new work (not auto-merged by title)
+      operationId: post_series
+      responses:
+        '201':
+          description: Accepted/Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Series'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSeries'
+      parameters:
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+  /series/{id}:
+    get:
+      tags:
+      - series
+      summary: Get canonical identity, current Bible and provenance
+      operationId: get_series_id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Series'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id003
+  /series/{id}/aliases/review:
+    post:
+      tags:
+      - series
+      summary: Approve or dispute an alias with evidence
+      operationId: post_series_id_aliases_review
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id003
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Correction'
+  /series/{id}/canon/revisions:
+    post:
+      tags:
+      - series
+      summary: Create reviewed canon revision
+      operationId: post_series_id_canon_revisions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id003
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Correction'
+  /episodes:
+    get:
+      tags:
+      - episodes
+      summary: List episodes by edition or work
+      operationId: get_episodes
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Episode'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+      - episodes
+      summary: Create episode identity
+      operationId: post_episodes
+      responses:
+        '201':
+          description: Accepted/Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Episode'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEpisode'
+      parameters:
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+  /episodes/{episode_id}:
+    get:
+      tags:
+      - episodes
+      summary: Get episode status and source revisions
+      operationId: get_episodes_episode_id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Episode'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - &id004
+        name: episode_id
+        in: path
+        required: true
+        schema: *id002
+  /episodes/{episode_id}/source-uploads:
+    post:
+      tags:
+      - episodes
+      summary: Initiate rights-scoped direct upload
+      operationId: post_episodes_episode_id_source_uploads
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignedURL'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id004
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SourceUpload'
+  /episodes/{episode_id}/evidence:
+    get:
+      tags:
+      - episodes
+      summary: Get versioned episode-scene-event-source graph
+      operationId: get_episodes_episode_id_evidence
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvidenceRef'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id004
+  /episodes/{episode_id}/corrections:
+    post:
+      tags:
+      - episodes
+      summary: Record a proposed source/evidence correction
+      operationId: post_episodes_episode_id_corrections
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id004
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Correction'
+  /episodes/{episode_id}/pipeline:
+    post:
+      tags:
+      - episodes
+      summary: Request a stage bounded by rights and budget
+      operationId: post_episodes_episode_id_pipeline
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id004
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunRequest'
+  /productions:
+    post:
+      tags:
+      - productions
+      summary: Create new production without duplicate automatic intent
+      operationId: post_productions
+      responses:
+        '201':
+          description: Accepted/Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Production'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProduction'
+      parameters:
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+  /productions/{production_id}:
+    get:
+      tags:
+      - productions
+      summary: Get production state/artifact lineage
+      operationId: get_productions_production_id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Production'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - &id005
+        name: production_id
+        in: path
+        required: true
+        schema: *id002
+  /productions/{production_id}/script:
+    get:
+      tags:
+      - productions
+      summary: Get current linked narration beats
+      operationId: get_productions_production_id_script
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id005
+    post:
+      tags:
+      - productions
+      summary: Save reviewed script revision
+      operationId: post_productions_production_id_script
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id005
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Correction'
+  /productions/{production_id}/voice:
+    post:
+      tags:
+      - productions
+      summary: Queue voice stage after budget and preflight
+      operationId: post_productions_production_id_voice
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id005
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunRequest'
+  /productions/{production_id}/storyboard:
+    post:
+      tags:
+      - productions
+      summary: Save frame-indexed shot plan revision
+      operationId: post_productions_production_id_storyboard
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id005
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Correction'
+  /productions/{production_id}/render:
+    post:
+      tags:
+      - productions
+      summary: Queue private render; no upload side effects
+      operationId: post_productions_production_id_render
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id005
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunRequest'
+  /productions/{production_id}/qa:
+    get:
+      tags:
+      - quality
+      summary: Get current artifact-bound QA report
+      operationId: get_productions_production_id_qa
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QAReport'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id005
+  /productions/{production_id}/qa-runs:
+    post:
+      tags:
+      - quality
+      summary: Run specified evaluators on exact export
+      operationId: post_productions_production_id_qa_runs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id005
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunRequest'
+  /qa/findings/{finding_id}/repair:
+    post:
+      tags:
+      - quality
+      summary: Preview or request targeted repair
+      operationId: post_qa_findings_finding_id_repair
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - &id006
+        name: finding_id
+        in: path
+        required: true
+        schema: *id002
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QualityRepair'
+  /qa/findings/{finding_id}/waive:
+    post:
+      tags:
+      - quality
+      summary: Record an authorized nonhard-gate waiver
+      operationId: post_qa_findings_finding_id_waive
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id006
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Correction'
+  /productions/{production_id}/package-proposals:
+    post:
+      tags:
+      - packaging
+      summary: Generate three truthful packaging concepts
+      operationId: post_productions_production_id_package_proposals
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id005
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunRequest'
+  /packages/{package_id}:
+    get:
+      tags:
+      - packaging
+      summary: Read owner-locked metadata revision
+      operationId: get_packages_package_id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Package'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - &id007
+        name: package_id
+        in: path
+        required: true
+        schema: *id002
+    patch:
+      tags:
+      - packaging
+      summary: Owner edit with field provenance and If-Match
+      operationId: patch_packages_package_id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Package'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id007
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PackagePatch'
+  /packages/{package_id}/approve:
+    post:
+      tags:
+      - packaging
+      summary: Approve exact package revision
+      operationId: post_packages_package_id_approve
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id007
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      description: Stateful command. Requires authenticated owner/editor authorization, appropriate permission,
+        current revision and audit record.
+  /productions/{production_id}/approve:
+    post:
+      tags:
+      - publishing
+      summary: Approve exact verified export package rights and destination
+      operationId: post_productions_production_id_approve
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Approval'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id005
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalRequest'
+  /publish/intents:
+    post:
+      tags:
+      - publishing
+      summary: Create owner-authorized publish intent; platform disabled by default
+      operationId: post_publish_intents
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishIntent'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublishRequest'
+      parameters:
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+  /publish/intents/{id}:
+    get:
+      tags:
+      - publishing
+      summary: Inspect remote reconciliation and publication state
+      operationId: get_publish_intents_id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishIntent'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id003
+  /publish/intents/{id}/reconcile:
+    post:
+      tags:
+      - publishing
+      summary: Reconcile previously attempted remote upload without blind retry
+      operationId: post_publish_intents_id_reconcile
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id003
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      description: Stateful command. Requires authenticated owner/editor authorization, appropriate permission,
+        current revision and audit record.
+  /autopilot/status:
+    get:
+      tags:
+      - autopilot
+      summary: Current autopilot mode and dedup health
+      operationId: get_autopilot_status
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutopilotPolicy'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /autopilot/policy:
+    put:
+      tags:
+      - autopilot
+      summary: Change per-series enrollment and budget
+      operationId: put_autopilot_policy
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutopilotPolicy'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutopilotPolicy'
+      parameters:
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+  /autopilot/dedup-preview:
+    get:
+      tags:
+      - autopilot
+      summary: Read-only why series chapters would be skipped
+      operationId: get_autopilot_dedup_preview
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AutopilotDedupRecord'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /jobs:
+    get:
+      tags:
+      - operations
+      summary: List jobs and supported current statuses
+      operationId: get_jobs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Job'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /jobs/{id}/cancel:
+    post:
+      tags:
+      - operations
+      summary: Persist cancel request; no forced incomplete false success
+      operationId: post_jobs_id_cancel
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id003
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      description: Stateful command. Requires authenticated owner/editor authorization, appropriate permission,
+        current revision and audit record.
+  /usage:
+    get:
+      tags:
+      - operations
+      summary: Spent, reserved and remaining budget
+      operationId: get_usage
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usage'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /audit:
+    get:
+      tags:
+      - operations
+      summary: Authorized append-only audit event view
+      operationId: get_audit
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /exports/{id}/signed-url:
+    get:
+      tags:
+      - operations
+      summary: Issue short-lived asset-scoped signed GET URL
+      operationId: get_exports_id_signed_url
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignedURL'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id003
+  /analytics/videos/{id}:
+    get:
+      tags:
+      - analytics
+      summary: Authorized first-party video analytics with timestamps
+      operationId: get_analytics_videos_id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsSeries'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id003
+  /analytics/experiments:
+    get:
+      tags:
+      - analytics
+      summary: Read observed packaging experiments
+      operationId: get_analytics_experiments
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Status'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /accounts:
+    get:
+      tags:
+      - accounts
+      summary: Show verified connected destination IDs/scopes
+      operationId: get_accounts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderConnection'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /rights/{id}:
+    get:
+      tags:
+      - rights
+      summary: Inspect rights manifest and allowed actions
+      operationId: get_rights_id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RightsManifest'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - *id003
+  /events/stream:
+    get:
+      tags:
+      - operations
+      summary: Authenticated server-sent state events (text/event-stream)
+      operationId: get_events_stream
+      responses:
+        '200':
+          description: Authorized job/state event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: State/version/idempotency conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    OwnerSession:
+      type: apiKey
+      in: cookie
+      name: fns_session
+      description: Server-issued signed/opaque session cookie, HttpOnly/Secure/SameSite. On writes also require
+        X-CSRF-Token; never put tokens in query strings.
+  schemas:
+    Error:
+      type: object
+      additionalProperties: false
+      properties:
+        code: *id001
+        message: *id001
+        retryable:
+          type: boolean
+        request_id: *id001
+        details:
+          type: object
+          additionalProperties: true
+      required:
+      - code
+      - message
+      - request_id
+    Health:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          enum:
+          - ok
+          - degraded
+        commit: *id001
+        environment: *id001
+      required:
+      - status
+      - commit
+      - environment
+    Status:
+      type: object
+      additionalProperties: false
+      properties:
+        status: *id001
+        id: *id002
+        revision:
+          type: integer
+        warnings:
+          type: array
+          items: *id001
+      required:
+      - status
+    Job:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id002
+        job_type: *id001
+        state:
+          type: string
+          enum:
+          - queued
+          - leased
+          - running
+          - blocked
+          - paused
+          - retryable
+          - failed
+          - completed
+          - cancelled
+        entity_id: *id002
+        attempt:
+          type: integer
+        last_error: *id001
+        cost_usd:
+          type: number
+      required:
+      - id
+      - job_type
+      - state
+      - entity_id
+      - attempt
+    RightsManifest:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id002
+        basis:
+          type: string
+          enum:
+          - original
+          - licensed
+          - public_domain
+          - reviewed_exception
+          - unknown
+        allowed_actions:
+          type: array
+          items: *id001
+        allowed_platforms:
+          type: array
+          items: *id001
+        evidence_asset_id: *id002
+        reviewed_at:
+          type: string
+          format: date-time
+        revision:
+          type: integer
+      required:
+      - basis
+      - allowed_actions
+    Series:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id002
+        canonical_title: *id001
+        status: *id001
+        aliases:
+          type: array
+          items: *id001
+        canon_revision:
+          type: integer
+      required:
+      - id
+      - canonical_title
+      - status
+    Episode:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id002
+        edition_id: *id002
+        chapter_key: *id001
+        source_revision:
+          type: integer
+        rights_status: *id001
+      required:
+      - id
+      - edition_id
+      - chapter_key
+    ResearchCandidate:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id002
+        title: *id001
+        tier:
+          type: string
+          enum:
+          - A
+          - B
+          - C
+          - BLOCKED
+          - UNVERIFIED
+        confidence: *id001
+        opportunity_score:
+          type:
+          - number
+          - 'null'
+        as_of:
+          type: string
+          format: date-time
+        uncertainties:
+          type: array
+          items: *id001
+        evidence_count:
+          type: integer
+      required:
+      - id
+      - title
+      - tier
+      - confidence
+      - as_of
+    EvidenceRef:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id002
+        kind: *id001
+        source_url: *id001
+        observed_at:
+          type: string
+          format: date-time
+        source_sha256: &id008
+          type: string
+          pattern: ^[0-9a-f]{64}$
+        supports_claim_id: *id002
+        verification: *id001
+      required:
+      - id
+      - kind
+      - verification
+    Production:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id002
+        work_id: *id002
+        format:
+          type: string
+          enum:
+          - single
+          - compilation
+          - short
+          - reel
+          - community
+        status: *id001
+        is_qa_only:
+          type: boolean
+        variant_of:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        revision:
+          type: integer
+      required:
+      - id
+      - work_id
+      - status
+      - is_qa_only
+      - revision
+    QAReport:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id002
+        production_id: *id002
+        export_sha256: *id008
+        status:
+          type: string
+          enum:
+          - PASS
+          - FAIL
+          - INCOMPLETE
+          - NOT_APPLICABLE
+        coverage:
+          type: object
+          additionalProperties: true
+        findings:
+          type: array
+          items:
+            $ref: '#/components/schemas/QAFinding'
+      required:
+      - id
+      - production_id
+      - status
+    QAFinding:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id002
+        check_id: *id001
+        severity:
+          type: string
+          enum:
+          - P0
+          - P1
+          - P2
+          - P3
+        status: *id001
+        description: *id001
+        start_ms:
+          type:
+          - integer
+          - 'null'
+        end_ms:
+          type:
+          - integer
+          - 'null'
+        evidence_ids:
+          type: array
+          items: *id002
+        remediation: *id001
+      required:
+      - id
+      - check_id
+      - severity
+      - status
+      - description
+    Package:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id002
+        production_id: *id002
+        revision:
+          type: integer
+        title: *id001
+        description: *id001
+        tags:
+          type: array
+          items: *id001
+        hashtags:
+          type: array
+          items: *id001
+        thumbnail_asset_id: *id002
+        field_policies:
+          type: object
+          additionalProperties: true
+        status: *id001
+      required:
+      - id
+      - production_id
+      - revision
+      - status
+    Approval:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id002
+        production_id: *id002
+        export_sha256: *id008
+        package_revision:
+          type: integer
+        channel_id: *id002
+        rights_revision:
+          type: integer
+        qa_report_id: *id002
+        approved_by: *id002
+      required:
+      - production_id
+      - export_sha256
+      - package_revision
+      - channel_id
+      - rights_revision
+      - qa_report_id
+    PublishIntent:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id002
+        production_id: *id002
+        approval_id: *id002
+        channel_id: *id002
+        privacy:
+          type: string
+          enum:
+          - private
+          - unlisted
+          - public
+        publish_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        status: *id001
+        remote_video_id:
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      - production_id
+      - approval_id
+      - channel_id
+      - privacy
+      - status
+    SourceUpload:
+      type: object
+      additionalProperties: false
+      properties:
+        episode_id: *id002
+        filename: *id001
+        mime_type: *id001
+        size_bytes:
+          type: integer
+          minimum: 0
+        sha256: *id008
+        rights_manifest_id: *id002
+        page_order:
+          type: integer
+          minimum: 1
+      required:
+      - episode_id
+      - filename
+      - mime_type
+      - size_bytes
+      - sha256
+      - rights_manifest_id
+    SignedURL:
+      type: object
+      additionalProperties: false
+      properties:
+        asset_id: *id002
+        url:
+          type: string
+          format: uri
+        operation:
+          type: string
+          enum:
+          - GET
+          - PUT
+        expires_at:
+          type: string
+          format: date-time
+      required:
+      - asset_id
+      - url
+      - operation
+      - expires_at
+    Usage:
+      type: object
+      additionalProperties: false
+      properties:
+        spent_usd:
+          type: number
+        reserved_usd:
+          type: number
+        remaining_usd:
+          type: number
+        period: *id001
+      required:
+      - spent_usd
+      - reserved_usd
+      - remaining_usd
+      - period
+    ProviderConnection:
+      type: object
+      additionalProperties: false
+      properties:
+        provider: *id001
+        external_account_id: *id001
+        scopes:
+          type: array
+          items: *id001
+        status: *id001
+        verified_at:
+          type: string
+          format: date-time
+      required:
+      - provider
+      - status
+    AutopilotPolicy:
+      type: object
+      additionalProperties: false
+      properties:
+        mode:
+          type: string
+          enum:
+          - 'OFF'
+          - WATCH
+          - PREPARE
+          - PRODUCE
+        enrolled_series_ids:
+          type: array
+          items: *id002
+        daily_budget_usd:
+          type: number
+          minimum: 0
+        max_parallel_episodes:
+          type: integer
+          minimum: 0
+      required:
+      - mode
+      - enrolled_series_ids
+      - daily_budget_usd
+      - max_parallel_episodes
+    RunRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        stage:
+          type: string
+          enum:
+          - source
+          - ocr
+          - episode_evidence
+          - outline
+          - script
+          - critique
+          - voice
+          - storyboard
+          - render
+          - final_qa
+          - packaging
+        dry_run:
+          type: boolean
+          default: true
+        max_cost_usd:
+          type: number
+          minimum: 0
+        expected_revision:
+          type: integer
+          minimum: 1
+      required:
+      - stage
+      - dry_run
+      - expected_revision
+    CreateEpisode:
+      type: object
+      additionalProperties: false
+      properties:
+        edition_id: *id002
+        chapter_key: *id001
+        title: *id001
+      required:
+      - edition_id
+      - chapter_key
+    CreateProduction:
+      type: object
+      additionalProperties: false
+      properties:
+        work_id: *id002
+        episode_ids:
+          type: array
+          minItems: 1
+          items: *id002
+        format:
+          type: string
+          enum:
+          - single
+          - compilation
+          - short
+          - reel
+          - community
+        is_qa_only:
+          type: boolean
+          default: true
+        owner_requested_remake:
+          type: boolean
+          default: false
+        variant_of:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        channel_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+      required:
+      - work_id
+      - episode_ids
+      - format
+      - is_qa_only
+    Correction:
+      type: object
+      additionalProperties: false
+      properties:
+        target_kind:
+          type: string
+          enum:
+          - ocr
+          - speaker
+          - event
+          - canon
+          - script
+          - shot
+          - name
+        target_id: *id002
+        reason: *id001
+        proposed_value: {}
+        expected_revision:
+          type: integer
+          minimum: 1
+      required:
+      - target_kind
+      - target_id
+      - reason
+      - proposed_value
+      - expected_revision
+    PackagePatch:
+      type: object
+      additionalProperties: false
+      properties:
+        expected_revision:
+          type: integer
+        title: *id001
+        description: *id001
+        tags:
+          type: array
+          items: *id001
+        thumbnail_asset_id: *id002
+        field_lock:
+          type: boolean
+          default: true
+      required:
+      - expected_revision
+    ResearchRun:
+      type: object
+      additionalProperties: false
+      properties:
+        topic: *id001
+        mode:
+          type: string
+          enum:
+          - DISCOVERY
+          - OPPORTUNITY_EVALUATION
+          - RECHECK
+          - RELEASE_WATCH
+        max_provider_calls:
+          type: integer
+          minimum: 0
+        dry_run:
+          type: boolean
+          default: true
+      required:
+      - topic
+      - mode
+      - dry_run
+    Greenlight:
+      type: object
+      additionalProperties: false
+      properties:
+        edition_id: *id002
+        chapter_key: *id001
+        reason: *id001
+        max_cost_usd:
+          type: number
+          minimum: 0
+      required:
+      - edition_id
+      - chapter_key
+      - reason
+      - max_cost_usd
+    PublishRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        production_id: *id002
+        approval_id: *id002
+        channel_id: *id002
+        privacy:
+          type: string
+          enum:
+          - private
+          - unlisted
+          - public
+        publish_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        confirm_channel_id: *id001
+      required:
+      - production_id
+      - approval_id
+      - channel_id
+      - privacy
+      - confirm_channel_id
+    QualityRepair:
+      type: object
+      additionalProperties: false
+      properties:
+        repair_kind: *id001
+        dry_run:
+          type: boolean
+          default: true
+        max_cost_usd:
+          type: number
+          minimum: 0
+      required:
+      - repair_kind
+      - dry_run
+    AutopilotDedupRecord:
+      type: object
+      additionalProperties: false
+      properties:
+        work_id: *id002
+        chapter_key: *id001
+        channel_id: *id002
+        content_type: *id001
+        ledger_state: *id001
+        existing_production_id: *id002
+        reason: *id001
+      required:
+      - work_id
+      - chapter_key
+      - channel_id
+      - content_type
+      - ledger_state
+      - reason
+    AnalyticsSeries:
+      type: object
+      additionalProperties: false
+      properties:
+        video_id: *id001
+        as_of:
+          type: string
+          format: date-time
+        metrics:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              name: *id001
+              value:
+                type: number
+              period_start:
+                type: string
+                format: date-time
+              period_end:
+                type: string
+                format: date-time
+              unit: *id001
+              source: *id001
+            required:
+            - name
+            - value
+            - source
+      required:
+      - video_id
+      - as_of
+      - metrics
+    CreateSeries:
+      type: object
+      additionalProperties: false
+      properties:
+        canonical_title: *id001
+        original_language: *id001
+        work_kind:
+          type: string
+          enum:
+          - comic
+          - novel
+          - animation
+          - other
+      required:
+      - canonical_title
+      - work_kind
+    ApprovalRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        export_id:
+          type: string
+          format: uuid
+        packaging_revision_id:
+          type: string
+          format: uuid
+        channel_id:
+          type: string
+          format: uuid
+        qa_report_id:
+          type: string
+          format: uuid
+        rights_manifest_id:
+          type: string
+          format: uuid
+        confirmation:
+          type: string
+          description: Owner-entered confirmation of intended channel/destination and exact release asset
+      required:
+      - export_id
+      - packaging_revision_id
+      - channel_id
+      - qa_report_id
+      - rights_manifest_id
+      - confirmation

@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flamingo-next-api"
+version = "0.0.1"
+requires-python = ">=3.11"
+dependencies = ["fastapi>=0.115,<1.0", "pydantic>=2,<3", "uvicorn>=0.31,<1.0", "sqlalchemy>=2.0,<2.1", "psycopg[binary]>=3.2,<4", "boto3>=1.35,<2", "alembic>=1.13,<2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "httpx>=0.27,<1", "pyyaml>=6,<7", "jsonschema>=4.22,<5"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["flamingo_next_api*"]

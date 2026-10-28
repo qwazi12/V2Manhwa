@@ -1,0 +1,29 @@
+# Independent loopback-only dependencies. No cloud resources.
+name: v2manhwa-local
+services:
+  postgres:
+    image: postgres:16.6-alpine
+    environment:
+      POSTGRES_USER: fns_local
+      POSTGRES_PASSWORD: local_dev_only_not_a_real_secret
+      POSTGRES_DB: fns_local
+    ports: ["127.0.0.1:56473:5432"]
+    volumes: ["v2_fns_pg:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fns_local -d fns_local"]
+      interval: 2s
+      retries: 20
+  minio:
+    build:
+      context: .
+      dockerfile: infra/Minio.Dockerfile
+    image: v2manhwa-minio:2025-10-15-source
+    command: ["server", "/home/minio/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: fns_local_only
+      MINIO_ROOT_PASSWORD: local_dev_only_not_a_real_secret
+    ports: ["127.0.0.1:59473:9000", "127.0.0.1:59474:9001"]
+    volumes: ["v2_fns_minio:/home/minio/data"]
+volumes:
+  v2_fns_pg:
+  v2_fns_minio:

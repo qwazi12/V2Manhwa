@@ -1,0 +1,1691 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fns.example.invalid/contracts/ai_contracts.schema.json",
+  "title": "Flamingo Next Studio AI artifact union",
+  "description": "Strict structured outputs; generated data is untrusted until externally validated and, where required, reviewed.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/EpisodeIntelligence"
+    },
+    {
+      "$ref": "#/$defs/EpisodeOutline"
+    },
+    {
+      "$ref": "#/$defs/NarrationScript"
+    },
+    {
+      "$ref": "#/$defs/NarrativeCritique"
+    },
+    {
+      "$ref": "#/$defs/AudioBeatResult"
+    },
+    {
+      "$ref": "#/$defs/ShotPlan"
+    },
+    {
+      "$ref": "#/$defs/ResearchAssessment"
+    },
+    {
+      "$ref": "#/$defs/PackagingProposal"
+    },
+    {
+      "$ref": "#/$defs/MediaQAReport"
+    }
+  ],
+  "$defs": {
+    "EvidenceLink": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "source_kind": {
+          "type": "string",
+          "enum": [
+            "panel",
+            "ocr_line",
+            "canon_claim",
+            "market_observation",
+            "human_review",
+            "other"
+          ]
+        },
+        "source_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "content_sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence_role": {
+          "type": "string",
+          "enum": [
+            "supports",
+            "context",
+            "contradicts"
+          ]
+        },
+        "verified": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "source_kind",
+        "evidence_role",
+        "verified"
+      ]
+    },
+    "OCRObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "panel_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "line_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "line_order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "raw_text": {
+          "type": "string"
+        },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "dialogue",
+            "caption",
+            "narration",
+            "sfx",
+            "credit",
+            "other"
+          ]
+        },
+        "language": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "speaker_candidate_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "speaker_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "type": "number"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          }
+        }
+      },
+      "required": [
+        "panel_id",
+        "line_id",
+        "line_order",
+        "raw_text",
+        "classification",
+        "speaker_candidate_id",
+        "confidence",
+        "evidence"
+      ]
+    },
+    "PanelObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "panel_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "page_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "visual_facts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inferences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "visible_character_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "panel_kind": {
+          "type": "string",
+          "enum": [
+            "art",
+            "bubble_only",
+            "credit",
+            "decoration",
+            "unknown"
+          ]
+        },
+        "ocr": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OCRObservation"
+          }
+        },
+        "uncertainties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          }
+        }
+      },
+      "required": [
+        "panel_id",
+        "page_id",
+        "order",
+        "visual_facts",
+        "inferences",
+        "visible_character_ids",
+        "panel_kind",
+        "ocr",
+        "uncertainties",
+        "evidence"
+      ]
+    },
+    "StoryEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "scene_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "actors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "action": {
+          "type": "string"
+        },
+        "result": {
+          "type": "string"
+        },
+        "fact_class": {
+          "type": "string",
+          "enum": [
+            "observed",
+            "interpreted",
+            "owner_approved"
+          ]
+        },
+        "significance": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "major",
+            "minor",
+            "background"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          }
+        },
+        "uncertainties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "event_id",
+        "scene_id",
+        "sequence",
+        "actors",
+        "action",
+        "result",
+        "fact_class",
+        "significance",
+        "evidence",
+        "uncertainties"
+      ]
+    },
+    "StoryScene": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scene_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "purpose": {
+          "type": "string"
+        },
+        "setting": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "event_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "panel_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "transition_note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "spoil_in_earlier_scene": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "scene_id",
+        "sequence",
+        "purpose",
+        "setting",
+        "event_ids",
+        "panel_ids",
+        "transition_note",
+        "spoil_in_earlier_scene"
+      ]
+    },
+    "EpisodeIntelligence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "episode_intelligence"
+        },
+        "schema_version": {
+          "const": "1.0"
+        },
+        "episode_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "source_revision_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "canon_revision_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "panels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PanelObservation"
+          }
+        },
+        "scenes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StoryScene"
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StoryEvent"
+          }
+        },
+        "coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "pages_expected": {
+              "type": "integer"
+            },
+            "pages_seen": {
+              "type": "integer"
+            },
+            "ocr_lines_seen": {
+              "type": "integer"
+            },
+            "critical_events_reviewed": {
+              "type": "integer"
+            },
+            "critical_events_total": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "pages_expected",
+            "pages_seen",
+            "ocr_lines_seen",
+            "critical_events_reviewed",
+            "critical_events_total"
+          ]
+        },
+        "open_questions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "model_limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "episode_id",
+        "source_revision_id",
+        "canon_revision_id",
+        "panels",
+        "scenes",
+        "events",
+        "coverage",
+        "open_questions",
+        "model_limitations"
+      ]
+    },
+    "SceneOutline": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scene_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "story_goal": {
+          "type": "string"
+        },
+        "source_event_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "must_retain_event_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "intended_length_words": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "allow_compression": {
+          "type": "boolean"
+        },
+        "emotional_intent": {
+          "type": "string"
+        },
+        "transition_to_next": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "scene_id",
+        "sequence",
+        "story_goal",
+        "source_event_ids",
+        "must_retain_event_ids",
+        "intended_length_words",
+        "allow_compression",
+        "emotional_intent",
+        "transition_to_next"
+      ]
+    },
+    "EpisodeOutline": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "episode_outline"
+        },
+        "schema_version": {
+          "const": "1.0"
+        },
+        "episode_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "logline": {
+          "type": "string"
+        },
+        "narrative_arc": {
+          "type": "string"
+        },
+        "scenes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SceneOutline"
+          }
+        },
+        "unresolved_questions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "notes_for_writer": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "episode_id",
+        "logline",
+        "narrative_arc",
+        "scenes",
+        "unresolved_questions",
+        "notes_for_writer"
+      ]
+    },
+    "NarrationBeat": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "beat_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "scene_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "spoken_text": {
+          "type": "string"
+        },
+        "source_event_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "source_line_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "story_purpose": {
+          "type": "string"
+        },
+        "emotion": {
+          "type": "string"
+        },
+        "pace": {
+          "type": "string",
+          "enum": [
+            "slow",
+            "moderate",
+            "brisk",
+            "urgent"
+          ]
+        },
+        "pronunciation_terms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "visual_intent": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "beat_id",
+        "scene_id",
+        "order",
+        "spoken_text",
+        "source_event_ids",
+        "source_line_ids",
+        "story_purpose",
+        "emotion",
+        "pace",
+        "pronunciation_terms",
+        "visual_intent"
+      ]
+    },
+    "NarrationScript": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "narration_script"
+        },
+        "schema_version": {
+          "const": "1.0"
+        },
+        "production_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "canon_revision_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_revision_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "beats": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/NarrationBeat"
+          }
+        },
+        "remaining_uncertainties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "estimated_word_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "production_id",
+        "canon_revision_id",
+        "source_revision_id",
+        "beats",
+        "remaining_uncertainties",
+        "estimated_word_count"
+      ]
+    },
+    "CritiqueFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "finding_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "P0",
+            "P1",
+            "P2",
+            "P3"
+          ]
+        },
+        "claim_type": {
+          "type": "string",
+          "enum": [
+            "omission",
+            "fabrication",
+            "wrong_speaker",
+            "wrong_name",
+            "order",
+            "continuity",
+            "repetition",
+            "pacing",
+            "other"
+          ]
+        },
+        "beat_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "source_event_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          }
+        },
+        "explanation": {
+          "type": "string"
+        },
+        "proposed_fix": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "finding_id",
+        "severity",
+        "claim_type",
+        "beat_ids",
+        "source_event_ids",
+        "evidence",
+        "explanation",
+        "proposed_fix",
+        "confidence"
+      ]
+    },
+    "NarrativeCritique": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "narrative_critique"
+        },
+        "schema_version": {
+          "const": "1.0"
+        },
+        "production_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL",
+            "INCOMPLETE"
+          ]
+        },
+        "evaluated_beat_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "evaluated_event_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CritiqueFinding"
+          }
+        },
+        "omitted_evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "production_id",
+        "status",
+        "evaluated_beat_ids",
+        "evaluated_event_ids",
+        "findings",
+        "omitted_evidence_ids",
+        "limitations"
+      ]
+    },
+    "AudioBeatResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "audio_beat_result"
+        },
+        "schema_version": {
+          "const": "1.0"
+        },
+        "script_beat_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "audio_asset_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "voice_config_hash": {
+          "type": "string"
+        },
+        "decoded_duration_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "leading_silence_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "trailing_silence_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "speech_present": {
+          "type": "boolean"
+        },
+        "asr_confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL",
+            "INCOMPLETE"
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "script_beat_id",
+        "audio_asset_id",
+        "voice_config_hash",
+        "decoded_duration_ms",
+        "leading_silence_ms",
+        "trailing_silence_ms",
+        "speech_present",
+        "asr_confidence",
+        "checks",
+        "status"
+      ]
+    },
+    "Shot": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "shot_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "source_panel_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "script_beat_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "start_frame": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end_frame": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "crop_normalized": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            },
+            "width": {
+              "type": "number"
+            },
+            "height": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "y",
+            "width",
+            "height"
+          ]
+        },
+        "rotation_degrees": {
+          "type": "integer"
+        },
+        "motion": {
+          "type": "string",
+          "enum": [
+            "static",
+            "pan",
+            "zoom",
+            "scroll",
+            "hold",
+            "cutaway"
+          ]
+        },
+        "story_purpose": {
+          "type": "string"
+        },
+        "avoid_regions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "width": {
+                "type": "number"
+              },
+              "height": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y",
+              "width",
+              "height"
+            ]
+          }
+        },
+        "qa_risks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "confidence": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "shot_id",
+        "source_panel_id",
+        "script_beat_id",
+        "start_frame",
+        "end_frame",
+        "crop_normalized",
+        "rotation_degrees",
+        "motion",
+        "story_purpose",
+        "avoid_regions",
+        "qa_risks",
+        "confidence"
+      ]
+    },
+    "ShotPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "shot_plan"
+        },
+        "schema_version": {
+          "const": "1.0"
+        },
+        "production_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "fps_num": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "fps_den": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "shots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Shot"
+          }
+        },
+        "narration_reference_hash": {
+          "type": "string"
+        },
+        "source_revision_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "production_id",
+        "fps_num",
+        "fps_den",
+        "shots",
+        "narration_reference_hash",
+        "source_revision_id"
+      ]
+    },
+    "ResearchObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "observation_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "source_url": {
+          "type": "string"
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "measurement": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "numeric_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "time_window": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_kind": {
+          "type": "string",
+          "enum": [
+            "publisher",
+            "youtube",
+            "vidiq",
+            "reddit",
+            "search_interest",
+            "other"
+          ]
+        },
+        "query": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rights_status": {
+          "type": "string",
+          "enum": [
+            "allowed",
+            "restricted",
+            "unknown"
+          ]
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "observation_id",
+        "source_url",
+        "observed_at",
+        "measurement",
+        "numeric_value",
+        "unit",
+        "time_window",
+        "source_kind",
+        "query",
+        "rights_status",
+        "limitations"
+      ]
+    },
+    "ResearchAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "research_assessment"
+        },
+        "schema_version": {
+          "const": "1.0"
+        },
+        "candidate_work_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "candidate_title": {
+          "type": "string"
+        },
+        "matched_aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tier": {
+          "type": "string",
+          "enum": [
+            "A",
+            "B",
+            "C",
+            "BLOCKED",
+            "UNVERIFIED"
+          ]
+        },
+        "scores": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "demand_vs_supply": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "momentum": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "feasibility": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "audience_fit": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 5
+            }
+          },
+          "required": [
+            "demand_vs_supply",
+            "momentum",
+            "feasibility",
+            "audience_fit"
+          ]
+        },
+        "evidence_confidence": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low",
+            "unverified"
+          ]
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ResearchObservation"
+          }
+        },
+        "countercase": {
+          "type": "string"
+        },
+        "missing_evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reasoning_summary": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "candidate_work_id",
+        "candidate_title",
+        "matched_aliases",
+        "tier",
+        "scores",
+        "evidence_confidence",
+        "observations",
+        "countercase",
+        "missing_evidence",
+        "reasoning_summary"
+      ]
+    },
+    "TitleConcept": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "search",
+            "story",
+            "hybrid"
+          ]
+        },
+        "story_claim_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "search_observation_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "truth_status": {
+          "type": "string",
+          "enum": [
+            "supported",
+            "review_required",
+            "unsupported"
+          ]
+        },
+        "differentiation": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "text",
+        "strategy",
+        "story_claim_ids",
+        "search_observation_ids",
+        "truth_status",
+        "differentiation"
+      ]
+    },
+    "ThumbnailConcept": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "concept_name": {
+          "type": "string"
+        },
+        "focal_character_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "source_event_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "image_asset_candidates": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "composition_instructions": {
+          "type": "string"
+        },
+        "mobile_legibility_notes": {
+          "type": "string"
+        },
+        "copyright_status": {
+          "type": "string",
+          "enum": [
+            "cleared",
+            "needs_review",
+            "blocked"
+          ]
+        },
+        "story_promise": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "concept_name",
+        "focal_character_ids",
+        "source_event_ids",
+        "image_asset_candidates",
+        "composition_instructions",
+        "mobile_legibility_notes",
+        "copyright_status",
+        "story_promise"
+      ]
+    },
+    "PackagingProposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "packaging_proposal"
+        },
+        "schema_version": {
+          "const": "1.0"
+        },
+        "production_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "episode_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "titles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TitleConcept"
+          }
+        },
+        "thumbnails": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ThumbnailConcept"
+          }
+        },
+        "description": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hashtags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description_claim_evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EvidenceLink"
+          }
+        },
+        "comparison_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unverified_metrics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "production_id",
+        "episode_ids",
+        "titles",
+        "thumbnails",
+        "description",
+        "tags",
+        "hashtags",
+        "description_claim_evidence",
+        "comparison_notes",
+        "unverified_metrics"
+      ]
+    },
+    "TechnicalFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "finding_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "check_id": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "P0",
+            "P1",
+            "P2",
+            "P3"
+          ]
+        },
+        "start_ms": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "end_ms": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "affected_beat_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "affected_shot_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "evidence_asset_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "suggested_repair": {
+          "type": "string"
+        },
+        "verification_method": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "finding_id",
+        "check_id",
+        "severity",
+        "start_ms",
+        "end_ms",
+        "affected_beat_ids",
+        "affected_shot_ids",
+        "evidence_asset_id",
+        "description",
+        "suggested_repair",
+        "verification_method"
+      ]
+    },
+    "MediaQAReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "media_qa_report"
+        },
+        "schema_version": {
+          "const": "1.0"
+        },
+        "export_sha256": {
+          "type": "string"
+        },
+        "manifest_sha256": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL",
+            "INCOMPLETE"
+          ]
+        },
+        "decode_complete": {
+          "type": "boolean"
+        },
+        "voice_stem_checked": {
+          "type": "boolean"
+        },
+        "final_mix_checked": {
+          "type": "boolean"
+        },
+        "checks_run": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TechnicalFinding"
+          }
+        },
+        "unknown_or_unchecked": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "export_sha256",
+        "manifest_sha256",
+        "status",
+        "decode_complete",
+        "voice_stem_checked",
+        "final_mix_checked",
+        "checks_run",
+        "findings",
+        "unknown_or_unchecked"
+      ]
+    }
+  }
+}

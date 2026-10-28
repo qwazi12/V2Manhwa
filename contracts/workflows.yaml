@@ -1,0 +1,232 @@
+# Independent Flamingo Next Studio: declarative stage DAG v1
+schema_version: '1.0'
+project: flamingo-next-studio
+isolation:
+  old_project_access: forbidden
+  old_project_mutation: forbidden
+  staging_publish_credentials: forbidden
+  cross_environment_backend_urls: forbidden
+
+defaults:
+  timeout_seconds: 900
+  retries: 2
+  exponential_backoff_seconds: [10, 40]
+  on_invalid_result: INCOMPLETE
+  on_cancel: CANCELLED
+  fail_closed_on_rights_unknown: true
+  never_advance_on_file_presence_only: true
+  check_input_fingerprint: true
+  preserve_completed_artifacts: true
+  publish_enabled: false
+  drive_auto_copy_enabled: false
+  source_remote_scrape_enabled: false
+  maximum_parallel_ai_jobs: 2
+  maximum_parallel_media_jobs: 1
+  example_spend_controls_usd: {per_episode: 10.0, daily: 35.0, monthly: 300.0}
+
+states:
+  production:
+    - DRAFT
+    - SOURCE_READY
+    - EVIDENCE_READY
+    - OUTLINE_READY
+    - SCRIPT_READY
+    - AUDIO_READY
+    - STORYBOARD_READY
+    - RENDERED
+    - QA_REVIEW
+    - OWNER_APPROVED
+    - QUEUED
+    - UPLOADING
+    - UPLOAD_UNVERIFIED
+    - PUBLISHED
+    - ANALYZING
+    - BLOCKED
+    - PAUSED
+    - FAILED_RETRYABLE
+    - FAILED_FINAL
+    - CANCELLED
+    - SUPERSEDED
+  quality: [PASS, FAIL, INCOMPLETE, NOT_APPLICABLE]
+  finding: [open, fixed_pending_retest, verified_fixed, owner_waived, invalidated]
+  jobs: [queued, leased, running, blocked, paused, retryable, failed, completed, cancelled]
+
+stages:
+  research_discovery:
+    dependencies: []
+    module: workers.research
+    authorization: permitted_provider_metadata
+    cost: no_unapproved_paid_provider
+    output: research_observations
+    verification: dated_sources_and_search_query_provenance
+    retries: 1
+  research_identity:
+    dependencies: [research_discovery]
+    module: workers.research
+    authorization: reviewer_on_ambiguous_match
+    output: verified_work_identity_or_conflict
+    verification: no_empty_alias_or_cross_work_merge
+  research_opportunity:
+    dependencies: [research_identity]
+    module: workers.research
+    authorization: owner_greenlight_required_for_production
+    output: opportunity_assessment
+    verification: scored_factors_separated_from_confidence_and_rights
+  source_import:
+    dependencies: []
+    module: workers.source
+    authorization: source_access_rights_recorded
+    output: immutable_source_revision
+    verification: page_order_hashes_and_zip_safety
+  source_panel_split:
+    dependencies: [source_import]
+    module: workers.source
+    output: panel_inventory
+    verification: each_page_accounted_for_and_nonstory_text_preserved
+  source_ocr:
+    dependencies: [source_panel_split]
+    module: workers.source
+    cost: budget_reservation_required
+    output: ocr_observations
+    verification: line_order_unknown_speaker_and_bubble_only_preserved
+  source_visual_analysis:
+    dependencies: [source_panel_split]
+    module: workers.source
+    cost: budget_reservation_required
+    output: visual_observations
+    verification: no_claim_without_source_asset
+  episode_intelligence:
+    dependencies: [source_ocr, source_visual_analysis]
+    module: workers.source
+    cost: budget_reservation_required
+    output: versioned_episode_events_scenes_evidence
+    verification: coverage_map_critical_events_and_name_conflicts
+  story_outline:
+    dependencies: [episode_intelligence]
+    module: workers.production
+    cost: budget_reservation_required
+    output: episode_outline
+    verification: must_retain_events_and_spoiler_boundaries
+  script_generation:
+    dependencies: [story_outline]
+    module: workers.production
+    cost: budget_reservation_required
+    output: linked_narration_script
+    verification: typed_beats_source_ids_no_assistant_chatter
+  narrative_critique:
+    dependencies: [script_generation]
+    module: workers.quality
+    cost: budget_reservation_required
+    output: narrative_critique
+    verification: explicit_fail_or_incomplete_not_empty_success
+  script_repair:
+    dependencies: [narrative_critique]
+    module: workers.production
+    cost: budget_reservation_required
+    run_condition: unresolved_reviewable_findings
+    max_iterations: 3
+    output: revised_script
+    verification: critique_rerun_on_dirty_spans
+  owner_script_review:
+    dependencies: [narrative_critique]
+    module: approval_service
+    run_condition: zero_critical_unresolved_narrative_defects
+    output: script_approval
+    verification: exact_script_and_canon_revision
+  tts_synthesis:
+    dependencies: [owner_script_review]
+    module: workers.production
+    cost: budget_reservation_required
+    output: audio_beats
+    verification: cached_by_text_voice_model_and_pronunciation_inputs
+  narration_qa:
+    dependencies: [tts_synthesis]
+    module: workers.quality
+    output: speech_activity_audio_alignment_report
+    verification: no_missing_speech_corrupt_decodes_or_unapproved_voice_swap
+  shot_planning:
+    dependencies: [narration_qa]
+    module: workers.production
+    cost: budget_reservation_required
+    output: editable_frame_indexed_shots
+    verification: source_match_crop_story_purpose_duplicate_hold
+  shot_qa:
+    dependencies: [shot_planning]
+    module: workers.quality
+    output: visual_relevance_review
+    verification: no_decorative_border_unreadable_crop_known_story_mismatch
+  media_render:
+    dependencies: [shot_qa]
+    module: workers.media
+    timeout_seconds: 7200
+    retries: 1
+    output: exact_immutable_export_manifest
+    verification: deterministic_rational_timeline_full_decode
+    side_effects: [private_object_storage_write_only]
+  media_qa:
+    dependencies: [media_render]
+    module: workers.quality
+    output: artifact_bound_media_qa
+    verification: voice_stem_mix_sync_corruption_silence_and_visual_samples
+  packaging_proposals:
+    dependencies: [episode_intelligence, media_render]
+    module: workers.production
+    cost: budget_reservation_required
+    output: three_distinct_story_grounded_packages
+    verification: exact_episode_identity_and_event_claim_support
+  packaging_qa:
+    dependencies: [packaging_proposals, media_qa]
+    module: workers.quality
+    output: packaging_truth_report
+    verification: titles_description_tags_thumb_mobile_no_stale_inheritance
+  owner_release_approval:
+    dependencies: [media_qa, packaging_qa]
+    module: approval_service
+    run_condition: zero_nonwaivable_blockers_and_rights_cleared
+    output: immutable_export_package_channel_approval
+    verification: hash_bundle_and_owner_intent
+    automatic: false
+  publish_intent:
+    dependencies: [owner_release_approval]
+    module: workers.publishing
+    authorization: owner_intent_and_server_publish_flag_and_connected_channel
+    output: queued_private_upload_intent
+    verification: rights_account_hashes_quota_and_duplication_lock
+    automatic: false
+  upload:
+    dependencies: [publish_intent]
+    module: workers.publishing
+    authorization: hard_publish_gate
+    retries: 0
+    output: provider_upload_session_or_remote_id
+    verification: reconcile_remote_result_before_retry
+    side_effects: [external_provider_upload]
+  analytics_collection:
+    dependencies: [upload]
+    module: workers.analytics
+    authorization: owner_connected_first_party_analytics
+    output: timestamped_analytics_observations
+    verification: no_inferred_private_competitor_metrics
+
+invalidations:
+  source_revision_changed: [source_ocr, source_visual_analysis, episode_intelligence, story_outline, script_generation, narrative_critique, tts_synthesis, narration_qa, shot_planning, shot_qa, media_render, media_qa, packaging_proposals, packaging_qa, owner_release_approval]
+  canon_name_spoken_changed: [script_generation, narrative_critique, tts_synthesis, narration_qa, shot_planning, shot_qa, media_render, media_qa, packaging_proposals, packaging_qa, owner_release_approval]
+  source_name_marketing_only_changed: [packaging_proposals, packaging_qa, owner_release_approval]
+  script_beat_changed: [narrative_critique, tts_synthesis, narration_qa, shot_planning, shot_qa, media_render, media_qa, packaging_qa, owner_release_approval]
+  shot_crop_changed: [shot_qa, media_render, media_qa, owner_release_approval]
+  voice_changed: [tts_synthesis, narration_qa, shot_planning, shot_qa, media_render, media_qa, owner_release_approval]
+  thumbnail_changed: [packaging_qa, owner_release_approval]
+  market_observation_changed: [research_opportunity, packaging_proposals]
+  media_export_changed: [media_qa, packaging_qa, owner_release_approval]
+
+safety_invariants:
+  - No job is considered complete merely because a file with expected name exists.
+  - No generation of known made or published chapter unless an explicit owner variant request is recorded.
+  - No publication when source, rights, media, package, QA or channel fingerprint differs from approval.
+  - No external upload, Drive copy, schedule or comment reply in QA-only or staging mode.
+  - No unbounded retries after provider result is uncertain.
+  - Owner metadata locks are not overwritten by background jobs.
+  - An incomplete critique or missing QA input never counts as PASS.
+  - No implicitly trusted market content is promoted to canon.
+  - No source material is acquired from a provider through prohibited automation.
+  - No access to or deployment of any previous project.
