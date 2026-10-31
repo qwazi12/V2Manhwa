@@ -1,0 +1,57 @@
+name: local-foundation
+on:
+  push:
+    branches: [main]
+  pull_request:
+concurrency:
+  group: local-studio-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  local-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ENVIRONMENT: local
+      FNS_LOCAL_DEV_KEY: ci-only-synthetic-owner-key-1234567890
+      FNS_MEDIA_SIGNING_KEY: ci-only-synthetic-media-key-1234567890
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.13'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '24', cache: npm, cache-dependency-path: web/package-lock.json}
+      - run: python -m venv .venv && .venv/bin/python -m pip install -r requirements.lock
+      - run: docker compose up -d --build
+      - name: Wait for isolated local dependencies
+        run: |
+          for i in $(seq 1 60); do
+            if docker compose exec -T postgres pg_isready -U fns_local -d fns_local && curl -fsS http://127.0.0.1:59473/minio/health/live; then exit 0; fi
+            sleep 2
+          done
+          docker compose logs
+          exit 1
+      - run: ./scripts/prepare_test_db.sh
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg espeak-ng tesseract-ocr
+      - run: make check-contracts test
+      - run: make test-media
+      - run: npm ci
+        working-directory: web
+      - run: npm run generate:api && npm run build
+        working-directory: web
+      - run: git diff --exit-code web/lib/generated-api.ts
+      - name: Build and start complete independent container stack
+        run: |
+          python3 scripts/setup_local.py
+          docker compose -f compose.yaml -f compose.app.yaml up -d --build
+      - name: Verify proxy to API to durable worker to private MP4
+        run: .venv/bin/python scripts/smoke_container_stack.py
+      - name: Capture container diagnostics on failure
+        if: failure()
+        run: docker compose -f compose.yaml -f compose.app.yaml logs --tail 100
+      - run: docker compose -f compose.yaml -f compose.app.yaml down
+        if: always()
+      - run: docker compose down
+        if: always()
+# No deployment, paid provider requests or publishing credentials.
