@@ -6,7 +6,7 @@ def unambiguous_map(rows):
     """Conflicting case-insensitive aliases keep their original spoken spelling."""
     grouped={}
     for row in rows:
-        if row['pronunciation']:
+        if row['alias'].strip() and row['pronunciation']:
             grouped.setdefault(row['alias'].casefold(),[]).append(row)
     return {min(row['alias'] for row in group):group[0]['pronunciation']
             for group in grouped.values()
@@ -20,6 +20,9 @@ def approved_map(db,conn,wid):
 def for_speech(text,mapping):
     if not mapping:return text
     # Longer names win; one regex pass prevents recursive replacement of output.
-    aliases=sorted(mapping,key=len,reverse=True);lookup={alias.casefold():mapping[alias] for alias in aliases}
+    aliases=sorted((alias for alias in mapping if alias.strip()),key=len,reverse=True)
+    if not aliases:return text
+    lookup={alias.casefold():mapping[alias] for alias in aliases}
     pattern=re.compile(r'(?<!\w)('+ '|'.join(re.escape(alias) for alias in aliases)+r')(?!\w)',re.IGNORECASE)
-    return pattern.sub(lambda match:lookup[match.group(0).casefold()],text)
+    # Python IGNORECASE also matches dotted/dotless I; casefold need not agree.
+    return pattern.sub(lambda match:lookup.get(match.group(0).casefold(),match.group(0)),text)

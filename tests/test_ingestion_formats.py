@@ -58,3 +58,14 @@ def test_conflicting_alias_pronunciations_are_excluded_regardless_of_query_order
     rows=[{'alias':'Lee','pronunciation':'Lee'}, {'alias':'LEE','pronunciation':'Lay'},
           {'alias':'Kim','pronunciation':'Gim'}, {'alias':'KIM','pronunciation':'Gim'}]
     assert unambiguous_map(rows)==unambiguous_map(list(reversed(rows)))=={'KIM':'Gim'}
+
+def test_pronunciation_rejects_empty_alias_and_preserves_unmatched_unicode_casefold():
+    from flamingo_next_api.pronunciation import for_speech,unambiguous_map
+    from flamingo_next_api.product_models import CharacterInput
+    from pydantic import ValidationError
+    from uuid import uuid4
+    assert for_speech('Original words',{'':'unexpected'})=='Original words'
+    assert unambiguous_map([{'alias':' ','pronunciation':'unexpected'}])=={}
+    assert for_speech('KİM and Kim',{'Kim':'Gim'})=='KİM and Gim'
+    with pytest.raises(ValidationError):
+        CharacterInput(name='Kim',aliases=[' '],evidence_page_id=uuid4())

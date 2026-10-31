@@ -132,6 +132,12 @@ class CharacterInput(Strict):
     pronunciation: str = Field(default='',max_length=180)
     notes: str = Field(default='',max_length=2000)
     evidence_page_id: UUID
+    @field_validator('aliases')
+    @classmethod
+    def bounded_aliases(cls,value):
+        if any(not alias.strip() or len(alias)>100 for alias in value):
+            raise ValueError('Character aliases must contain 1..100 characters')
+        return value
 
 class CanonInput(Strict):
     revision: int = Field(ge=0)
