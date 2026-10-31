@@ -1,47 +1,52 @@
 # Flamingo Next Studio / V2Manhwa
 
-An independent, local manhwa production workspace. The first implemented slice is a real **synthetic job → durable queue → fake provider → private image preview** workflow, with no paid integrations or publishing.
+An independent local workspace for authorized manhwa production: import pages, edit source-linked narration/shots, render a private narrated video, record QA findings, prepare packaging, and review the exact export.
 
-## Run the app
+## Run
 
-Prerequisites: Docker Desktop running, Python 3.11+, Node.js 20.9+ and npm. First setup downloads dependencies and compiles the pinned MinIO source release; allow a few minutes.
+Start Docker Desktop, then run:
 
 ```bash
-./start-studio.command
+./start-studio-docker.command
 ```
 
-Open **http://127.0.0.1:3000** and enter the local access key printed in that terminal. Keys are generated into ignored `.env.local` with mode 0600; they are not bundled into the frontend. Ctrl+C stops the app servers. Docker volumes persist your work.
+Open **http://127.0.0.1:3000** and enter the local key printed in the terminal. Python 3 and Docker Desktop are required on the host; Node/Python/media tools run in dedicated containers. First build downloads public dependencies and builds the pinned MinIO release. Keys are generated into ignored mode-0600 `.env.local`; no browser-bundled secret.
 
-`./start-codex.command` is the original **engineering handoff launcher**, which starts a separate Codex CLI session. It does not start the app. The implementation in this checkout follows that handoff directly.
+Optional local neural voices:
 
-## What works locally
+```bash
+./download-voice-models.command --docker
+```
 
-- Responsive Control Tower, Episode Studio, preview review queue and Operations screens.
-- Revocable local owner session, HttpOnly SameSite cookie and Origin/CSRF enforcement.
-- PostgreSQL job state, idempotency, revisions, cancellation, bounded leases/recovery and transactional event records.
-- Separate worker with validated deterministic fake responses and atomic mock-budget reservations.
-- Private MinIO objects, content hashes and five-minute, session-bound preview signatures.
-- Runtime OpenAPI, generated TypeScript contracts, database migration and integration/security tests.
+This downloads two checksum-pinned public Kokoro assets and installs them in the project's private Docker volume. Inference is offline. Default system speech works without these model files. See [voice attribution](docs/VOICE_ATTRIBUTION.md).
 
-The preview is an original synthetic SVG cover, **not a narrated video**. Preview review does not imply editorial approval. Real source ingestion, OCR/story intelligence, narration, video exports, publishing, production OIDC, invited users, general outbox consumers and cloud staging remain unimplemented. Phase 0 is **not complete**; see `docs/IMPLEMENTATION_STATUS.md`.
+`./start-studio.command` is the host-development alternative, requiring Python/Node and local FFmpeg, Tesseract and say/espeak-ng. `./start-codex.command` remains the original engineering handoff launcher; it starts a Codex CLI session.
+
+**Current incident:** image builds pass but Docker Engine is timing out on container starts. Project volumes are preserved; the owner has been asked to restart Docker Desktop. The app is currently down. Startup is bounded and reports this failure; it does not restart shared Docker automatically.
+
+## Local workflow
+
+1. Create a series and import your authorized ordered PNG/JPEG/static WebP pages with an explicit rights declaration.
+2. Review original/normalized source and optional local OCR. OCR and gutter suggestions remain unreviewed evidence.
+3. Write and save source-linked beats, crops, motions and voice; every story page needs coverage. Review the source before approving the saved script.
+4. Queue a longform render. The worker produces MP4, narration WAV, WebVTT and a source/frame/hash manifest. Jobs support cancel/retry; edits invalidate stale exports/approvals.
+5. Inspect the actual video. Record timestamped story/voice/visual findings; P0/P1 findings block approval until an explicit retest.
+6. Prepare episode-specific packaging and review the exact export privately. Vertical exports have separate plans/reviews and a 60-second cap.
+
+The local owner session is development-only. Full automatic writer/independent critic/ASR, live research, watchlist, production identity, cloud staging, OAuth/publishing, Drive and autopilot remain unfinished or disabled. Nothing uploads publicly. Full status: [implementation evidence](docs/IMPLEMENTATION_STATUS.md), [ticket ledger](docs/ISSUE_LEDGER.md), [runbook](ops/PHASE0_LOCAL_RUNBOOK.md).
 
 ## Verify
 
-With Docker dependencies running:
+With dedicated dependencies running:
 
 ```bash
 ./scripts/prepare_test_db.sh
 make test check-contracts test-media
-npm --prefix web run typecheck
 npm --prefix web run build
 ```
 
-`make test` uses only the dedicated disposable `fns_test` database. `make test-media` separately renders and decodes a one-second FFmpeg fixture; it is not an episode renderer. Browser evidence and checks are documented in `ops/PHASE0_LOCAL_RUNBOOK.md`.
+The complete suite last passed 32 tests before the latest image/OCR/pronunciation fixes. An 12-test offline subset and latest frontend build have since passed; a combined full rerun is pending Engine recovery. The separate synthetic media smoke is not full episode acceptance. No blueprint ticket is declared complete solely because tests pass.
 
-Ports: web 3000, API 8000, PostgreSQL 56473, private S3 59473, local storage console 59474. All bind to loopback. No cloud resources or public deployment are created.
+Ports bind only to loopback: web 3000, API 8000, PostgreSQL 56473, private object store 59473, store console 59474. Dedicated Compose project: `v2manhwa-local`. Never substitute another application's resources.
 
-## Specification and safety
-
-`FLAMINGO_NEXT_BLUEPRINT.md`, `roadmap/BUILD_PLAN.md` and `qa/ACCEPTANCE_MATRIX.md` describe the larger product. `contracts/openapi.yaml` is that future product design; `contracts/local.openapi.json` is the API actually implemented here. All public publishing, Drive copying, autopilot, protected scraping and paid providers remain disabled.
-
-The supplied GitHub target is `qwazi12/V2Manhwa`. It was empty and public when inspected. Repository privacy, production identity, cloud staging and release authorization are owner decisions; this local implementation does not claim those gates passed.
+`contracts/openapi.yaml` remains the future design; `contracts/local.openapi.json` is the implemented API. The target repository was public when inspected, so the specification's private-repository gate remains open. No cloud/deployment/visibility change is implied.

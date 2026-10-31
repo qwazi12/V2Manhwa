@@ -6,7 +6,7 @@
 Read `CODEX_MASTER_KICKOFF.md` **in full** and follow its *Required reading order*. Treat that document as the opening user assignment. The entire blueprint package is checked in at the repository root. Use `roadmap/BUILD_PLAN.md` for FNS-001 through FNS-055 and `qa/ACCEPTANCE_MATRIX.md` for tests.
 
 ## What exists right now
-The starter includes the complete design package and a **limited, local-only Phase 0 scaffold**: Next.js shell, FastAPI demo capability endpoints, local Compose dependency configuration, offline Python/security/contract/media tests. The database is not integrated, auth is not production-ready, and no real workers, AI providers, media uploads, publishing or research sources have been implemented. Do not claim Phase 0 or any FNS ticket is completed.
+The independent local implementation includes a PostgreSQL-backed studio, private MinIO media, bounded authorized image ingestion, manual source-linked editing/canon, local OCR, offline system/neural narration, FFmpeg longform/vertical exports, durable render workers, exact-input reviews, packaging, human QA findings, and local backup/restore tools. Production identity, connected writer/critic/ASR providers, live research, publishing and cloud staging remain incomplete. Read docs/IMPLEMENTATION_STATUS.md for current evidence and runtime blockers. Do not claim Phase 0 or any FNS ticket is completed without its full acceptance evidence.
 
 ## Engineering rules
 - Never set a Git remote to the old repo; verify `git remote -v` before every first push.

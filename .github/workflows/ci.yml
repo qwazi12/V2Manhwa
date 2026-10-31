@@ -27,8 +27,8 @@ jobs:
           docker compose logs
           exit 1
       - run: ./scripts/prepare_test_db.sh
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg espeak-ng tesseract-ocr
       - run: make check-contracts test
-      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - run: make test-media
       - run: npm ci
         working-directory: web

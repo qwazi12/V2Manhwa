@@ -51,4 +51,4 @@ def login(request, response, key):
         csrf = secrets.token_urlsafe(32)
         conn.execute(sessions.insert().values(id=token_hash(token), csrf=csrf, expires_at=time.time() + TTL))
     response.set_cookie(COOKIE, token, max_age=TTL, httponly=True, samesite='strict', secure=False, path='/api')
-    return {'role': 'owner', 'csrf': csrf, 'mode': 'local-synthetic'}
+    return {'role': 'owner', 'csrf': csrf, 'mode': 'local-studio'}

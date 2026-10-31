@@ -1,0 +1,2 @@
+# Optional offline neural narration; no remote inference client.
+kokoro-onnx==0.6.1

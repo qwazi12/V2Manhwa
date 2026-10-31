@@ -11,6 +11,8 @@ from .repository import Repository
 from .security import require_owner, login, COOKIE
 from .storage import Storage
 from .models import JobResponse, IdentityResponse, PreviewResponse
+from .product_db import ProductDB
+from .product_routes import router as product_router
 
 class LoginRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
@@ -39,6 +41,7 @@ def create_app(settings=None):
         app.state.settings = settings or Settings.load()
         app.state.engine = engine_for(app.state.settings)
         app.state.repo = Repository(app.state.engine)
+        app.state.product = ProductDB(app.state.engine)
         app.state.storage = Storage(app.state.settings)
         app.state.login_attempts = []
         try:
@@ -84,13 +87,16 @@ def create_app(settings=None):
 
     @app.get('/api/v1/me', response_model=IdentityResponse)
     def me(owner=Depends(require_owner)):
-        return {'role':'owner', 'csrf':owner['csrf'], 'mode':'local-synthetic'}
+        return {'role':'owner', 'csrf':owner['csrf'], 'mode':'local-studio'}
 
     @app.get('/api/v1/capabilities')
     def capabilities(owner=Depends(require_owner)):
+        from .voice_models import installed
         return {'phase0_complete':False, 'publishing_enabled':False, 'drive_auto_copy_enabled':False,
                 'autopilot_mode':'OFF', 'external_provider_calls_enabled':False,
-                'provider':'deterministic-fake-v1', 'daily_mock_budget_units':100}
+                'provider':'local-system-speech-and-manual-editorial', 'daily_mock_budget_units':100,
+                'local_features':{'source_ingestion':True,'ocr':'tesseract-english-unreviewed','narration':'offline-system-or-kokoro','neural_voice_files_present':installed(),'render':'ffmpeg-mp4','technical_qa':True,'semantic_qa':'human_required'},
+                'live_integrations':{'ai_models':'unconfigured','youtube':'disconnected','analytics':'manual-import-only','cloud':'not-deployed'}}
 
     @app.get('/api/v1/jobs', response_model=list[JobResponse])
     def list_jobs(request: Request, owner=Depends(require_owner)):
@@ -130,6 +136,9 @@ def create_app(settings=None):
     def schema(owner=Depends(require_owner)):
         return app.openapi()
 
+    from .body_limit import BodyLimitMiddleware
+    app.add_middleware(BodyLimitMiddleware)
+    app.include_router(product_router)
     return app
 
 app = create_app()

@@ -1,38 +1,39 @@
-# Local foundation runbook
+# Local studio runbook
 
-## Startup / shutdown
+## Start / stop
 
-Run `./start-studio.command` from the new checkout. It installs pinned dependencies, starts independent Compose services, applies migration `0001`, initializes a private bucket and launches API, worker and Next.js. It prints a local owner access key. Open http://127.0.0.1:3000 and enter it. A pre-existing listener on web/API ports stops startup. Failed Docker startup stops migration. Ctrl+C terminates the three app processes; database and object volumes remain available for restart.
+Use `./start-studio-docker.command`. It initializes new local keys, builds dedicated images, starts the independent stack, migrates through 0003, initializes the private bucket and waits for application health. It refuses another process's web/API listener. Containers persist after the terminal closes.
 
-`start-codex.command` remains an optional launcher for another engineering session. It is not needed while working with Codex in this chat.
+```bash
+bash scripts/docker_local.sh compose -f compose.yaml -f compose.app.yaml stop
+```
 
-The services use only `v2manhwa-local` Compose resources, database `fns_local` on port 56473, object store on 59473 and a private synthetic bucket. Test fixtures use `fns_test` only. Never substitute an existing app database or storage endpoint. Application settings refuse nonlocal infrastructure and nonlocal environments.
+Do not use `down -v` unless intentionally destroying this project's data. The project-scoped Docker wrapper uses a local Unix socket and anonymous config for public image pulls; it never modifies global Docker credentials/configuration. If container startup times out after 120 seconds, restart Docker Desktop manually and rerun the launcher. Do not restart shared Desktop automatically.
 
-## Verification
+`./start-studio.command` starts API/web/two workers on the host and supervises their PIDs. It needs pinned venv/npm dependencies, FFmpeg, Tesseract and say/espeak-ng. Ctrl+C stops its host processes. `start-codex.command` launches the engineering handoff, not the application.
 
-1. `./scripts/prepare_test_db.sh` creates the isolated test database through the named Compose container.
-2. `make test` runs real PostgreSQL/MinIO integration tests, local security/isolation checks and upgrade/downgrade/upgrade on the disposable test database.
-3. `make check-contracts` validates future design contracts. `PYTHONPATH=api .venv/bin/python scripts/export_runtime_contract.py` exports the implemented API; `npm --prefix web run generate:api` generates TS interfaces.
-4. `make test-media` requires FFmpeg and tests a one-second synthetic fixture, not a product export.
-5. `npm --prefix web run build` validates the production frontend build. Avoid running this while Next dev is using the same `.next` directory.
+Infrastructure is exclusively `v2manhwa-local`, fns_local on 56473, private MinIO on 59473/59474. Test DB fns_test and test bucket are separate. Settings reject nonlocal infrastructure. Generated `.env.local` is ignored and mode 0600. Never copy keys into screenshots, documentation, browser code or command output shared externally.
 
-### Browser smoke scenario (exercised locally on 2026-10-28)
+## Optional local neural narration
 
-- Anonymous page displays local sign-in. Enter launcher key; dashboard starts with actual database counts.
-- New synthetic episode → enter title → create. UI shows QUEUED, then REVIEW after the separate worker processes it.
-- Select the episode. Original SVG preview loads through a session-bound signed API URL. Inspect events and SHA-256.
-- Search by title, use state filters, open Quality Director and Operations; no placeholder control submits real source data or publishes content.
-- Resize to 390×844: workspace tabs and image preview remain usable, with no horizontal overflow.
-- Sign out; API rejects the revoked session. Signing in again shows persisted jobs. A full new API instance with the prior session was also tested automatically.
+`./download-voice-models.command` downloads/verifies models for host development. Add `--docker` after the application images have built to copy only pinned assets into the dedicated voice_models volume. The setup helper has no network and verifies staged checksums before replacing files. API/worker mount that volume read-only. Rendering fails if files are absent/changed; it never makes a paid/network fallback. The Docker volume installer is prepared but not yet runtime-verified during the current Engine incident.
 
-Screenshots: `output/playwright/control-tower.png`, `episode-preview-desktop.png`, `episode-preview-mobile.png` (ignored local evidence).
+## Verify
 
-## Known boundaries
+1. `./scripts/prepare_test_db.sh`; `make test` runs database/storage/media/security/migration tests on isolated test resources.
+2. `make check-contracts` checks the future reference design; runtime drift is checked by tests. Export implemented schema with `PYTHONPATH=api .venv/bin/python scripts/export_runtime_contract.py`, then `npm --prefix web run generate:api`.
+3. `make test-media` separately renders/decodes an original one-second fixture. `npm --prefix web run build` checks production UI/types; avoid sharing its .next directory with a dev server.
+4. Browser: sign in, create original Beacon sample, save crops/motions/voice, source review + script approval, queue render, observe terminal status, play MP4/captions, inspect export facts and QA. Review package; test separate vertical variant/review, findings/retest, rights revoke, Bible and historical restore. Only confirm watched/source-reviewed statements actually performed by the acting reviewer.
+5. At 390×844 verify no horizontal overflow and usable source/editor controls. Sign out and verify revoked-session denial. Latest complete browser regression is pending Engine recovery; older local evidence covers real Beacon export playback.
 
-- Authentication is **local owner access only**, not production OIDC, MFA or multi-role authorization. HTTP cookie `Secure=false` is restricted to loopback; do not expose this app through a tunnel or deploy it.
-- A mock reservation is 2 units, daily cap 100. Units are not USD. The cap counts reservations, including cancelled/failed work, conservatively until the next UTC day. Every fake response costs $0.
-- Jobs are queued directly in PostgreSQL; events commit with state transitions for audit. A general event bus/outbox delivery engine is not implemented.
-- Object store uses local-only development credentials. Generated owner/signing keys stay in ignored `.env.local`. Never reuse these settings for cloud services.
-- Worker operation is bounded below the 30-second lease; retries after process death stop after three claims. There is no live model retry or long-running renderer heartbeat yet.
-- No source uploads, ZIP processing, antivirus, external fetcher, real chapter rights review, voice or video production.
-- No cloud staging, restore drill, deployment or repository visibility change was performed.
+## Backup and restore
+
+Run `PYTHONPATH=api .venv/bin/python scripts/backup_local.py create` to snapshot, then `PYTHONPATH=api .venv/bin/python scripts/backup_local.py verify <snapshot-directory>` to verify and perform a disposable restore drill. It refuses endpoints outside this project's dedicated loopback resources, validates its Compose owner labels, signs metadata and checks every object hash. Backup directories are private; active sessions are excluded from restored DBs. Restore drills create fresh nonce-named DB/bucket, verify counts/hashes, then clean only those disposable resources. No cloud restore claim.
+
+## Authorized private draft preparation
+
+`scripts/render_private_draft.py --plan <work-plan.json> --output <private-output-dir>` uses the same media engine with an isolated filesystem object/cache store. It validates processing rights, page links and source hashes, writes no application state and refuses claimed owner approvals. It is a review-artifact utility, not an app/database fallback or end-to-end proof. Keep artwork/plans/exports outside Git. Generated media has technical QA only and must be reviewed before release.
+
+## Boundaries
+
+Local owner auth is not production OIDC/MFA/multi-role access. Do not tunnel/expose loopback development services. Mock budget units are not USD. Real writer/critic/ASR, cloud recovery, connected research/analytics, OAuth/upload, Drive and autopilot remain unimplemented or disabled. Technical decode/audibility PASS never substitutes for semantic accuracy, voice listening or owner creative acceptance.

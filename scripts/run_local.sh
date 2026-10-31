@@ -32,13 +32,14 @@ for port in 3000 8000; do
     exit 1
   fi
 done
-docker compose up -d --build
+bash scripts/docker_local.sh compose build
+python3 scripts/compose_start.py --infra-only
 for ((i=0; i<60; i++)); do
-  if docker compose exec -T postgres pg_isready -U fns_local -d fns_local >/dev/null 2>&1; then break; fi
+  if bash scripts/docker_local.sh compose exec -T postgres pg_isready -U fns_local -d fns_local >/dev/null 2>&1; then break; fi
   sleep 1
 done
 # Confirm this exact Compose database is healthy before any host migration.
-docker compose exec -T postgres pg_isready -U fns_local -d fns_local >/dev/null
+bash scripts/docker_local.sh compose exec -T postgres pg_isready -U fns_local -d fns_local >/dev/null
 .venv/bin/alembic -c api/alembic.ini upgrade head
 for ((i=0; i<60; i++)); do
   if .venv/bin/python -c 'from flamingo_next_api.config import Settings; from flamingo_next_api.storage import Storage; Storage(Settings.load()).initialize()' 2>/dev/null; then break; fi
@@ -53,13 +54,15 @@ echo 'Studio: http://127.0.0.1:3000 — press Ctrl+C to stop the API, worker and
 api_pid=$!
 .venv/bin/python -m flamingo_next_api.worker > work/worker.log 2>&1 &
 worker_pid=$!
+.venv/bin/python -m flamingo_next_api.production_worker > work/render-worker.log 2>&1 &
+render_pid=$!
 (cd web && exec node node_modules/next/dist/bin/next dev --hostname 127.0.0.1) > work/web.log 2>&1 &
 web_pid=$!
-cleanup() { kill "$api_pid" "$worker_pid" "$web_pid" 2>/dev/null || true; }
+cleanup() { kill "$api_pid" "$worker_pid" "$render_pid" "$web_pid" 2>/dev/null || true; }
 trap cleanup EXIT
 trap 'exit 0' INT TERM
 # Check all three children, including after startup; avoid an apparently live shell
 # with a dead worker. Docker dependencies remain persistent for the next launch.
-while kill -0 "$api_pid" 2>/dev/null && kill -0 "$worker_pid" 2>/dev/null && kill -0 "$web_pid" 2>/dev/null; do sleep 2; done
+while kill -0 "$api_pid" 2>/dev/null && kill -0 "$worker_pid" 2>/dev/null && kill -0 "$render_pid" 2>/dev/null && kill -0 "$web_pid" 2>/dev/null; do sleep 2; done
 echo 'A studio service stopped. Check work/api.log, work/worker.log and work/web.log.' >&2
 exit 1

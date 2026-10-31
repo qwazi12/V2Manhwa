@@ -16,3 +16,16 @@
 - Local owner sessions use an ignored generated access key; no browser bundle key or production identity claim. No cloud/deploy/provider integration is enabled.
 - Implemented response models generate a separate local.openapi.json and TypeScript file; leave the 48-path future API contract explicitly marked design-only.
 - Original geometric SVG preview proves private object storage; it does not claim narration, video production, semantic QA or owner approval.
+
+## 2026-10-31 — Local production workflow and explicit limits
+
+- The user's instruction to continue the complete build extends beyond the original Phase 0 handoff checkpoint. Implement product slices locally while retaining the blueprint's independent-resource and release boundaries.
+- Apply the full frozen product schema in migration 0002 and append studio snapshots/commands. Work UUID and edition/chapter identity remain authoritative; titles and aliases are not deduplication keys.
+- Use PostgreSQL render leases/heartbeats and exact source/script/voice/canon/rights bindings. Technical FFmpeg decode/audio checks never imply semantic or creative approval.
+- Choose offline system speech plus optional pinned Kokoro ONNX CPU voices; inference has no network download, account, credit usage or fallback. Ambiguous approved pronunciation aliases retain their original spoken spelling.
+- Preserve exact PNG/JPEG/WebP originals separately from normalized render images. Reject animation, archives and URL input. Increase bounded decoded chapter allowance to 256 MB for the authorized 70-page chapter; raw request remains 45 MB.
+- Add append-only human QA findings: P0/P1 block approval and persist through rerenders/variants until explicit retest. Rights/canon/script/package edits invalidate the appropriate approvals.
+- Use project-scoped anonymous Docker configuration for public image builds because the credential helper stalled metadata lookup. Do not change global Docker configuration. Container starts subsequently failed at Engine level; request owner restart rather than restart a shared Desktop autonomously.
+- User declined optional vidIQ analysis. No vidIQ service call/credits. Public YouTube playback was unavailable, so exact reference pacing/audio remains unverified.
+- User attested permission for processing and public distribution of the supplied source. Preserve that statement without inventing the rightsholder name or license document. This authorizes media preparation, not an upload/release action.
+- A standalone private-draft utility can use the same media engine while infrastructure is down. It writes no application state or owner approvals and is not an application fallback or end-to-end runtime proof.

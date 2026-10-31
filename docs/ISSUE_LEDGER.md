@@ -1,80 +1,63 @@
-# Ticket ledger — Flamingo Next Studio
+# Ticket ledger — 2026-10-31
 
-No blueprint ticket is claimed complete. The limited starter supplies scaffolding only; complete status requires the exit condition in `roadmap/BUILD_PLAN.md`.
+No full blueprint ticket is declared complete. LOCAL PARTIAL means implemented behavior exists, with evidence in IMPLEMENTATION_STATUS.md and OPERATIONS_LOG.md; it does not waive the roadmap exit criteria or owner acceptance. DESIGNED means no working connected implementation for that deliverable.
 
-| Ticket | Deliverable | Status |
+| Ticket | Local evidence | Remaining acceptance work |
 |---|---|---|
-| FNS-001 | Create brand-new private repo, docs, ADRs, independent CI | DESIGNED (starter scaffold exists) |
-| FNS-002 | Next.js app scaffold, design system, mobile tabs | DESIGNED (starter scaffold exists) |
-| FNS-003 | FastAPI domain module scaffold, OpenAPI/Pydantic generation | DESIGNED (starter scaffold exists) |
-| FNS-004 | Local Docker Compose: Postgres, MinIO, API, web, workers | DESIGNED (starter scaffold exists) |
-| FNS-005 | New dedicated auth + role policy, CSRF and secure cookies | DESIGNED |
-| FNS-006 | New PostgreSQL schema/Alembic, audit log and outbox | DESIGNED |
-| FNS-007 | Private content-addressed storage, signed URLs and antivirus/archive safety | DESIGNED |
-| FNS-008 | Durable jobs, leases, cancellations, idempotent outbox, fake costs | DESIGNED |
-| FNS-009 | Budget reservation, model gateway and fake response fixtures | DESIGNED |
-| FNS-010 | New staging environment + isolated restore and cost review | DESIGNED |
-| FNS-011 | Work/edition/chapter identity with Unicode NFKC alias review | DESIGNED |
-| FNS-012 | Rights manifest, per-action scopes and release gate | DESIGNED |
-| FNS-013 | Upload authorized source bundle + immutable source revision | DESIGNED |
-| FNS-014 | Panel extraction/geometry/reading-order classifier | DESIGNED |
-| FNS-015 | OCR bubble/text preservation, speaker evidence basis | DESIGNED |
-| FNS-016 | Series Room UI, names/pronunciation, canon proposals | DESIGNED |
-| FNS-017 | Evidence references and source→panel→OCR linking | DESIGNED |
-| FNS-018 | Scene/event assembler, coverage map and uncertainties | DESIGNED |
-| FNS-019 | Scene/story outline, previous-episode continuity | DESIGNED |
-| FNS-020 | Original script writer, beat provenance and style presets | DESIGNED |
-| FNS-021 | Independent critic, targeted revision loop and incomplete states | DESIGNED |
-| FNS-022 | Synchronized Source–Story–Video editing shell | DESIGNED |
-| FNS-023 | Voice identity, pronunciation and licensed TTS adapter | DESIGNED |
-| FNS-024 | Decoded speech QA, VAD/ASR alignment, silence analysis | DESIGNED |
-| FNS-025 | Rational-frame timeline/shot planner with story anchors | DESIGNED |
-| FNS-026 | Interactive shot preview, crop/turn/scroll editor | DESIGNED |
-| FNS-027 | FFmpeg primary renderer, audio stem/master, atomic exports | DESIGNED |
-| FNS-028 | Targeted rerender, asset graph/selective cache invalidation | DESIGNED |
-| FNS-029 | Unified Q0–Q7 check contract and exact hash-bound reports | DESIGNED |
-| FNS-030 | Final decoded MP4 QA, timestamps, technical/creative separation | DESIGNED |
-| FNS-031 | Gold episode labeling/reviewer rubrics/repair UI | DESIGNED |
-| FNS-032 | Approval fingerprints, invalidation and append-only audit | DESIGNED |
-| FNS-033 | Stage reliability dashboard and failure recovery | DESIGNED |
-| FNS-034 | Episode truth card, 3 title + 3 thumbnail concepts, source-supported description/tags | DESIGNED |
-| FNS-035 | Owner field locks and correct episode/compilation inheritance | DESIGNED |
-| FNS-036 | Rights-cleared thumbnail editor, mobile preview, versioned asset | DESIGNED |
-| FNS-037 | Permanent made/published ledger, canonical alias-aware dedup | DESIGNED |
-| FNS-038 | Watchlist/new-chapter tracking in WATCH/PREPARE modes | DESIGNED |
-| FNS-039 | Private publishing queue and account identity verification UI | DESIGNED |
-| FNS-040 | New Google Cloud OAuth app and YouTube integration, provider quota ledger | DESIGNED |
-| FNS-041 | Resumable upload intent, remote reconciling, privacy explicit | DESIGNED |
-| FNS-042 | Exact owner release/rights approval and emergency publishing stop | DESIGNED |
-| FNS-043 | Staging failover, backup/restore and shadow publish dry runs | DESIGNED |
-| FNS-044 | Research observation/evidence storage and search UI | DESIGNED |
-| FNS-045 | YouTube official API public competitor adapter + time samples | DESIGNED |
-| FNS-046 | Permitted catalog metadata/approved manual imports | DESIGNED |
-| FNS-047 | Demand/supply scoring, red-team, confidence and rights gates | DESIGNED |
-| FNS-048 | Optional vidIQ/Reddit/Trends adapters with permission ledger | DESIGNED |
-| FNS-049 | Portfolio programming and consent-based new-pilot queue | DESIGNED |
-| FNS-050 | Separate licensed vertical shot plans and Short QA | DESIGNED |
-| FNS-051 | Community drafts/polls/comment themes, no auto posting | DESIGNED |
-| FNS-052 | First-party YouTube Analytics/retention mapping | DESIGNED |
-| FNS-053 | Packaging experiment tracker and observed outcomes | DESIGNED |
-| FNS-054 | Audience-informed programming and creative feedback proposals | DESIGNED |
-| FNS-055 | Reliability/creative dashboard tracking per-episode errors and human hours | DESIGNED |
+| FNS-001 | Independent repo/history, isolation tests, earlier hosted CI | Private repository gate, expanded CI run/review |
+| FNS-002 | Connected responsive studio, latest production build | Latest complete mobile/browser regression, owner acceptance |
+| FNS-003 | Modular API, strict inputs, generated runtime contract | Complete strict response contracts and future endpoint coverage |
+| FNS-004 | API/web/workers containerized, images built | Engine start recovery, fresh-machine startup and voice installer validation |
+| FNS-005 | Local owner sessions, revocation/CSRF/Origin | OIDC/MFA, invited roles, HTTPS, distributed limits |
+| FNS-006 | Full schema + reversible migrations, audit/snapshots/outbox | Generic outbox consumers, staging verification |
+| FNS-007 | Private CAS originals/exports, signed session URLs/range | Archives/antivirus pipeline, staging storage policy |
+| FNS-008 | Durable renders, heartbeats, retries/cancel/fencing, receipts | Generic delivery/reliability/load/fault drills |
+| FNS-009 | Validated fake gateway and transactional mock budget | Authorized real providers and dollar accounting |
+| FNS-010 | Local signed snapshot and disposable restore passed | Independent staging, identity, cloud restore/cost review |
+| FNS-011 | Work UUID, NFKC/casefold aliases, chapter duplicates blocked | Edition ambiguity/review and broader catalog cases |
+| FNS-012 | Explicit rights manifest/revisions, revoke propagation, release off | Full per-action rights scopes and release workflow |
+| FNS-013 | Bounded immutable PNG/JPEG/WebP imports and hashes | Archive safety/antivirus; real-source app import after recovery |
+| FNS-014 | Local gutter region suggestions | Reviewed extraction, geometry/classification and reading-order model |
+| FNS-015 | Tesseract word/line boxes/confidence, unreviewed OCR | Bubble geometry, speaker evidence and human evaluation |
+| FNS-016 | Series Bible identity/alias/pronunciation/fact forms | Proposal reasoning, latest browser acceptance |
+| FNS-017 | Source/page/panel/hash links, canon evidence | Complete evidence graph/UI and source-line granularity |
+| FNS-018 | Manual events, page coverage and source-linked beats | Automated assembly, uncertainty/critical-event evaluation |
+| FNS-019 | Manual draft notes and history | Outline/previous-episode continuity engine |
+| FNS-020 | Manual/assisted original source-linked scripts | Connected writer, validated style presets and automatic provenance |
+| FNS-021 | Human findings and repair retest | Independent model critic, targeted automated revisions |
+| FNS-022 | Source–story–video editor, source jumps | Full synchronized timeline acceptance and latest browser regression |
+| FNS-023 | System speech + optional pinned Kokoro, approved pronunciations | Owner listening/voice identity evaluation, Docker neural run |
+| FNS-024 | Decoded per-beat audible PCM checks | VAD/ASR/alignment and pronunciation accuracy evaluation |
+| FNS-025 | Rational 24 fps frames and source-linked shot manifest | Rich story-anchor planning/evaluation |
+| FNS-026 | Crops, six motions, rendered preview | Interactive timeline/turn/shot preview polish |
+| FNS-027 | Real MP4/WAV/VTT/manifest, longform/vertical | Stem/master/music workflow, large production acceptance |
+| FNS-028 | HMAC/byte-verified exact voice and clip caches | Full asset graph/selective scheduling and fault evaluation |
+| FNS-029 | Hash-bound technical QA plus human review separation | Complete Q0–Q7 contract, independent semantic checks |
+| FNS-030 | Full final decode/frame/audio checks and finding timestamps | Creative/semantic final-film owner review |
+| FNS-031 | Human finding severity/category and retest UI | Gold labels/reviewer rubrics and benchmark corpus |
+| FNS-032 | Exact approval fingerprints, invalidation and append-only history | Complete acceptance matrix/staging review |
+| FNS-033 | Visible jobs/errors, cancel/retry and operations facts | Stage reliability dashboard/metrics and failure drills |
+| FNS-034 | Three source-backed title/thumbnail concepts, manual copy | Truth-card schema, validated model description/tags/critic |
+| FNS-035 | Owner locks, explicit apply, variant invalidation | Compilation inheritance and full packaging semantics |
+| FNS-036 | Source crop thumbnails and versioned hashes | Complete thumbnail editor/mobile preview/review |
+| FNS-037 | Permanent local made ledger, work/chapter dedup | Published reconciliation and alias ambiguity acceptance |
+| FNS-038 | DESIGNED | Watchlist/new-chapter tracking and WATCH/PREPARE consent |
+| FNS-039 | Private review library and publishing-disabled UI | Real account identity and publishing queue implementation |
+| FNS-040 | DESIGNED | New OAuth app, YouTube adapter and quota ledger |
+| FNS-041 | DESIGNED | Resumable upload/reconciliation/privacy intents |
+| FNS-042 | Publishing remains server-disabled | Exact owner release workflow and emergency stop execution |
+| FNS-043 | Local restore and snapshot tamper rejection | Staging failover/shadow publish dry runs |
+| FNS-044 | Manual evidence/observations/search | Full research review/dedup acceptance |
+| FNS-045 | Manual two-sample view velocity | Official API adapter, quota and sampling |
+| FNS-046 | Authorized manual image imports | Catalog metadata adapter and approval provenance |
+| FNS-047 | Unknown demand/competition explicit | Scoring, red-team and calibrated confidence |
+| FNS-048 | DESIGNED; user declined vidIQ analysis | Optional separately authorized adapters/permission ledger |
+| FNS-049 | DESIGNED | Portfolio programming and consent-based pilot queue |
+| FNS-050 | Explicit variants and separate ≤60s vertical export/review | Dedicated vertical plan/selection and full Short QA |
+| FNS-051 | DESIGNED | Community drafts/polls/comment themes; no posting |
+| FNS-052 | Manual metrics/retention mapped to real duration | First-party Analytics authorization/adapter |
+| FNS-053 | Manual packaging and metric records | Experiment assignment, immutable outcomes and analysis |
+| FNS-054 | DESIGNED | Audience-informed proposals and creative feedback |
+| FNS-055 | Manual findings, job states and observed runtime | Per-stage reliability/human-hours/creative dashboard |
 
-## Local implementation evidence (2026-10-28)
-
-All ticket completion/owner-acceptance gates remain pending. The following dependencies now have tested local implementation:
-
-| Ticket | Code / acceptance evidence | Remaining dependency |
-|---|---|---|
-| FNS-001 | New V2Manhwa remote, fresh history, .github/workflows/ci.yml, tests/test_isolation.py (ISO-001/002) | Target is public; private setting and hosted CI proof |
-| FNS-002 | web/app/page.tsx, globals.css; desktop/mobile browser workflow | Staging and owner acceptance |
-| FNS-003 | API modules, models.py, local.openapi.json, generated-api.ts; tests/test_demo_api.py | Full product domains/contract implementation |
-| FNS-004 | compose.yaml + scripts/run_local.sh/start-studio.command | Containerize app processes; clean-machine/staging verification |
-| FNS-005 | security.py, local_sessions; ISO-007/008/012 subset | OIDC/MFA, HTTPS and invited role policy |
-| FNS-006 | database.py, migrations/0001, test_migrations.py | Full product schema, actor audit and generic outbox consumers |
-| FNS-007 | storage.py + original synthetic SVG; ISO-005/006 | Upload/archives/antivirus, full media type support |
-| FNS-008 | repository.py/worker.py, concurrency/cancel/recovery tests; UI-007/009 local subset | Long jobs/heartbeats, generic event receipts, staging fault drills |
-| FNS-009 | gateway.py strict FakeResult, transactional reservations/budget tests | Real-provider policy/accounting with separate authorization |
-| FNS-010 | No cloud resources created | Approved independent staging, restore/cost/identity verification |
-
-FNS-011–055 retain their designed-only status above. The private SVG is not FNS-027 episode video or FNS-030 final-MP4 QA.
+Immediate blockers: Docker Desktop restart is pending; latest full suite/browser/runtime contract and real-source import wait on it. Live provider/account/cloud features also need independently authorized resources; no account or spend consent has been inferred.

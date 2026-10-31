@@ -6,7 +6,7 @@ setup:
 	.venv/bin/python -m pip install -r requirements.lock
 	cd web && npm ci
 infra:
-	docker compose up -d --build
+	bash scripts/docker_local.sh compose up -d --build
 migrate:
 	set -a; . ./.env.local; set +a; PYTHONPATH=api .venv/bin/alembic -c api/alembic.ini upgrade head
 test:
@@ -23,4 +23,6 @@ api:
 web:
 	cd web && npm run dev
 dev:
+	./start-studio-docker.command
+dev-host:
 	./start-studio.command

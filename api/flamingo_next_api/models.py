@@ -33,7 +33,7 @@ class JobResponse(BaseModel):
 class IdentityResponse(BaseModel):
     role: Literal['owner']
     csrf: str
-    mode: Literal['local-synthetic']
+    mode: Literal['local-studio']
 
 class PreviewResponse(BaseModel):
     url: str

@@ -21,8 +21,10 @@ class Settings:
         db = os.getenv('FNS_DATABASE_URL', 'postgresql+psycopg://fns_local:local_dev_only_not_a_real_secret@127.0.0.1:56473/fns_local')
         storage = os.getenv('FNS_STORAGE_ENDPOINT', 'http://127.0.0.1:59473')
         origin = os.getenv('FNS_WEB_ORIGIN', 'http://127.0.0.1:3000')
+        allowed={'127.0.0.1','localhost'}
+        if os.getenv('FNS_CONTAINER_MODE')=='true':allowed|={'postgres','minio'}
         for url in (db, storage, origin):
-            if urlparse(url).hostname not in {'127.0.0.1', 'localhost'}:
+            if urlparse(url).hostname not in allowed:
                 raise RuntimeError('Only independent loopback services are allowed')
         if urlparse(db).scheme != 'postgresql+psycopg' or urlparse(db).path not in {'/fns_local', '/fns_test'}:
             raise RuntimeError('Use the dedicated fns_local or fns_test PostgreSQL database')

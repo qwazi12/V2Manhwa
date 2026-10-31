@@ -1,4 +1,4 @@
-"""Private, hash-addressed synthetic previews; no uploads or source URLs."""
+"""Private hash-addressed source/export media and session-bound preview signatures."""
 import hashlib
 import hmac
 import io
@@ -52,3 +52,23 @@ class Storage:
             raise HTTPException(403, 'Preview link expired')
         if not hmac.compare_digest(self.signature(digest, session_id, expires), signature):
             raise HTTPException(403, 'Invalid preview signature')
+
+    def put_blob(self,data,mime):
+        extensions={'image/png':'png','image/jpeg':'jpg','image/webp':'webp','audio/wav':'wav','video/mp4':'mp4','application/json':'json','text/vtt':'vtt'}
+        if mime not in extensions: raise ValueError('Unsupported stored media type')
+        digest=hashlib.sha256(data).hexdigest()
+        key=f'assets/{digest}.{extensions[mime]}'
+        self.client.put_object(Bucket=self.settings.bucket,Key=key,Body=data,ContentType=mime,Metadata={'sha256':digest})
+        return {'key':key,'sha256':digest,'size_bytes':len(data),'mime_type':mime}
+
+    def read_blob(self,key,digest):
+        if not re.fullmatch(r'assets/[0-9a-f]{64}\.(png|jpg|webp|wav|mp4|json|vtt)',key):
+            raise HTTPException(404,'Unknown asset')
+        try:
+            response=self.client.get_object(Bucket=self.settings.bucket,Key=key)
+            data=response['Body'].read()
+        except ClientError as e:
+            raise HTTPException(404,'Asset is unavailable') from e
+        if hashlib.sha256(data).hexdigest()!=digest:
+            raise HTTPException(409,'Asset checksum mismatch')
+        return data

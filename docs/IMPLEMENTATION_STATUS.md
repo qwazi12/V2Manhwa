@@ -1,22 +1,28 @@
-# Implementation status — 2026-10-28
+# Implementation status — 2026-10-31
 
-**Local foundation implemented and exercised. Phase 0 is NOT complete.** No production deployment or full platform completion is claimed.
+The local production workflow is substantially implemented. The complete 55-ticket platform is unfinished, and no staging deployment or production readiness is claimed.
 
-| Component | Status | Evidence / remaining boundary |
+**Current runtime blocker:** Docker Engine accepts builds and container creation but times out starting this project's containers, including a direct Unix-socket start request. Only the independent `v2manhwa-local` stack was stopped; its data volumes remain intact. Docker Desktop restart was requested from the owner because a global restart could affect unrelated projects. The web/API are currently unavailable. The launcher now bounds startup at 120 seconds and reports the failure.
+
+| Component | Implemented behavior | Verification / remaining boundary |
 |---|---|---|
-| Independent V2Manhwa checkout | IMPLEMENTED | Initially empty target, new history; remote differs from prohibited project. Target observed public, so private-repository gate remains unmet. |
-| Next.js studio | LOCAL VALIDATED | Production build/types; browser sign-in → create → private preview; desktop and 390px mobile screenshots. |
-| FastAPI modular local API | LOCAL VALIDATED | Real PostgreSQL/MinIO TestClient tests; protected runtime schema and generated TypeScript types. |
-| Local owner authentication | LOCAL VALIDATED, LIMITED | Revocation, expiry checks, HttpOnly/SameSite cookie, CSRF/Origin and rate limits for one process. OIDC/MFA/editor roles/HTTPS deployment deferred. |
-| Dedicated PostgreSQL | LOCAL VALIDATED, SLICE ONLY | Persistent jobs/sessions/events/budgets and migration 0001. Fresh upgrade/downgrade/upgrade tested. Full blueprint SQL is not applied. |
-| Private object store / signed image | LOCAL VALIDATED, SLICE ONLY | Source-built MinIO; original SVG; checksum, tamper, expiry and different-session rejection. Upload/archive/antivirus and MP4 absent. |
-| Jobs / worker / event records | LOCAL VALIDATED, SLICE ONLY | Transactional queue and events, concurrent claims/idempotency, revision checks, cancellation, lease expiry/recovery and stale-worker fencing. General outbox delivery and long render leases absent. |
-| Fake model / mock budget | LOCAL VALIDATED, LIMITED | Strict response validation, reservation enforcement, atomic daily mock cap. No paid adapters or dollar accounting. |
-| CI | CONFIGURED | Runs tests, contract drift, web build and FFmpeg fixture with separate local services. Hosted execution recorded separately after push. |
-| Research/story/TTS/episode rendering | DESIGNED ONLY | UI labels planned modules; no provider connection or real episode export. |
-| Staging / recovery / production | NOT IMPLEMENTED | Needs independent approved resource inventory, production identity, backups and restore exercise. |
-| Publishing/Drive/autopilot/paid providers | DISABLED | No adapters or credentials; server refuses enabling flags. |
+| Independent repository | New V2Manhwa history, dedicated resources, isolation rules | Earlier foundation CI passed. Target was public; private-repository gate remains unmet. Current expanded code is local, not pushed. |
+| Studio UI | Nine connected workspaces, source/script/shot editing, rights, Bible, QA findings, packaging, jobs, private reviews | Real browser sample rendered and played at 1280×720, 23.4 seconds. Latest production web build passed. Latest full browser pass pending Engine recovery. |
+| Auth and API | Revocable loopback owner sessions, CSRF/Origin, strict request models, 45 MB body cap, runtime OpenAPI/TS | Local-only identity. OIDC/MFA/invited roles/HTTPS remain absent. Studio responses include dictionaries rather than complete strict response schemas. |
+| Database | Full frozen blueprint schema plus studio snapshots/jobs/command receipts, revisions, audit/outbox | Fresh upgrade/downgrade/upgrade tested on separate fns_test. General event delivery remains absent. |
+| Authorized sources | Ordered immutable originals and normalized PNGs; static PNG/JPEG/WebP; rights revisions; canonical work/chapter dedup | 80 pages, 5 MB raw/page, 16M pixels/page, 12 MB normalized/page, 256 MB combined bound. No archives, URL fetcher or antivirus pipeline. |
+| OCR and source evidence | Local Tesseract TSV, boxes/confidence, gutter suggestions; owner text preserved | Always unreviewed; no speaker identity or semantic classification claim. Literal-quote TSV regression fixed and tested. |
+| Editorial/canon | Source-linked beats, page coverage, explicit script approval, revisions/restore, evidence-bound names/facts/pronunciations | Manual/assisted editing. No connected automatic writer, independent critic or continuity reasoning. Ambiguous pronunciation aliases are excluded. |
+| Durable rendering | Heartbeats, leases, 3-attempt cap, cancel/retry fencing, exact input/rights binding, authenticated byte-verified caches | Actual FFmpeg tests, concurrency/stale-worker tests. Long production crash/load drills pending. |
+| Narration | macOS say / Linux espeak-ng; optional pinned offline Kokoro profiles, pronunciation substitutions | Actual local neural smoke: 7.58 seconds, mono 24 kHz. Model checksum failure is closed; no runtime download or paid fallback. Voice listening review and ASR/VAD remain pending. |
+| Shot/video export | 24 fps rational timeline, crops, six motion types, MP4/WAV/VTT/hash manifest, longform and separate ≤60-second vertical | Real audio/video renders, full decode, dimensions/frame/duration checks, audible PCM per beat. No music/SFX mix or automatic semantic approval. |
+| QA/review | Exact export/input/rights/package fingerprints, timestamped findings with source jump, P0/P1 block, retest resolution | Open findings survive rerender/variants. Technical PASS is separate from required human semantic/creative review. No fabricated owner acceptance. |
+| Packaging/library | Three deterministic source-backed title/thumbnail concepts, manual description/tags/locks, explicit apply, made ledger | No CTR prediction, model packaging critic, compilation workflow or published ledger integration. |
+| Research/analytics | Manual evidence/time samples, observed view velocity, manual retention tied to actual export duration | No connected YouTube/vidIQ/Reddit/Trends/Analytics; unknown demand/competition stays unknown. |
+| Recovery | HMAC-signed DB+object backup, byte verification, disposable restore, excluded sessions | Real local restore passed: 15 objects and expected six table counts; tampered manifest refused. No cloud failover or staging recovery. |
+| Containers | Dedicated API/web/worker images, own Compose resources, local voice model volume, anonymous project Docker client | Image builds succeeded. Latest runtime restart and voice-volume installer unverified due Engine failure. |
+| Publishing/Drive/autopilot | Disabled at server and UI, no connected account | No OAuth app, resumable upload, release execution, community posting, watchlist automation or cloud resources. |
 
-Verification: 12 tests passed, including PostgreSQL/MinIO and migration tests; final counts are recorded in `docs/OPERATIONS_LOG.md`. Static reference contract validation passed; synthetic FFmpeg render/decode passed; npm production dependency audit reported zero vulnerabilities using the official npm registry. This does not substitute for a full supply-chain/security audit.
+Verification evidence before the Engine failure: **32 Python tests passed** in `work/full-test.log`. Since then, **12 offline tests passed** (7 new image/OCR/pronunciation tests plus 5 existing isolation/spec/body-limit tests); this is not a combined full-suite result. Latest frontend production build, Python compilation, shell syntax, static reference-contract validation and synthetic A/V decode passed. Full suite and runtime contract drift need rerun after infrastructure recovers.
 
-Next prerequisite: finish the remaining auth/storage/job acceptance gates and independent staging/resource decisions before calling any Phase 0 ticket complete. Subsequent source-ingestion phases remain on the original FNS roadmap.
+Authorized real-source preparation: all 70 Chapter 1 images of *A Space Marine Got a Status Window* exported from the normally accessible public reader, hashes retained, original bytes unchanged. User attested permission for processing/public distribution on 2026-10-31. Local OCR is unreviewed. A source-linked original recap draft is prepared under ignored `work/authorized/`; it has not been imported into the application or approved by the owner. The YouTube reference's playback/transcript could not be verified. No vidIQ call or credits were used. No publication action is authorized by this source-rights attestation alone.

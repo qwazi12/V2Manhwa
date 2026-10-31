@@ -1,0 +1,73 @@
+# Complete independent LOCAL stack. No cloud resources or deployment.
+services:
+  initialize:
+    build:
+      context: .
+      dockerfile: infra/Api.Dockerfile
+    image: v2manhwa-api:local
+    env_file: [.env.local]
+    environment: &local-settings
+      FNS_CONTAINER_MODE: 'true'
+      FNS_DATABASE_URL: postgresql+psycopg://fns_local:local_dev_only_not_a_real_secret@postgres:5432/fns_local
+      FNS_STORAGE_ENDPOINT: http://minio:9000
+      FNS_KOKORO_DIR: /opt/fns-models
+    depends_on:
+      postgres: {condition: service_healthy}
+      minio: {condition: service_started}
+    command: ["python", "api/initialize_local.py"]
+  api:
+    init: true
+    image: v2manhwa-api:local
+    env_file: [.env.local]
+    environment: *local-settings
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on:
+      initialize: {condition: service_completed_successfully}
+    volumes: ["voice_models:/opt/fns-models:ro"]
+  worker:
+    init: true
+    image: v2manhwa-api:local
+    env_file: [.env.local]
+    environment: *local-settings
+    command: ["python", "-m", "flamingo_next_api.production_worker"]
+    depends_on:
+      initialize: {condition: service_completed_successfully}
+    volumes: ["voice_models:/opt/fns-models:ro"]
+  fixture-worker:
+    init: true
+    image: v2manhwa-api:local
+    env_file: [.env.local]
+    environment: *local-settings
+    command: ["python", "-m", "flamingo_next_api.worker"]
+    depends_on:
+      initialize: {condition: service_completed_successfully}
+  web:
+    init: true
+    build:
+      context: .
+      dockerfile: infra/Web.Dockerfile
+    image: v2manhwa-web:local
+    depends_on: [api]
+    ports: ["127.0.0.1:3000:3000"]
+
+  voice-models-setup:
+    image: v2manhwa-api:local
+    profiles: [voice-setup]
+    user: "0:0"
+    network_mode: none
+    volumes: ["voice_models:/opt/fns-models"]
+    entrypoint: ["python", "-c"]
+    command:
+      - |
+        from pathlib import Path
+        from flamingo_next_api.voice_models import FILES, file_sha
+        root=Path('/opt/fns-models')
+        for name, info in FILES.items():
+            staged=root/(name+'.incoming')
+            if staged.stat().st_size!=info['size_bytes'] or file_sha(staged)!=info['sha256']:
+                raise RuntimeError('Refusing a voice model with an invalid release checksum')
+        for name in FILES:
+            (root/(name+'.incoming')).replace(root/name)
+        print('Pinned voice assets installed atomically in the dedicated local volume.')
+volumes:
+  voice_models:
