@@ -11,7 +11,7 @@ permissions:
 jobs:
   local-integration:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       ENVIRONMENT: local
       FNS_LOCAL_DEV_KEY: ci-only-synthetic-owner-key-1234567890
@@ -41,6 +41,17 @@ jobs:
       - run: npm run generate:api && npm run build
         working-directory: web
       - run: git diff --exit-code web/lib/generated-api.ts
+      - name: Build and start complete independent container stack
+        run: |
+          python3 scripts/setup_local.py
+          docker compose -f compose.yaml -f compose.app.yaml up -d --build
+      - name: Verify proxy to API to durable worker to private MP4
+        run: .venv/bin/python scripts/smoke_container_stack.py
+      - name: Capture container diagnostics on failure
+        if: failure()
+        run: docker compose -f compose.yaml -f compose.app.yaml logs --tail 100
+      - run: docker compose -f compose.yaml -f compose.app.yaml down
+        if: always()
       - run: docker compose down
         if: always()
 # No deployment, paid provider requests or publishing credentials.
