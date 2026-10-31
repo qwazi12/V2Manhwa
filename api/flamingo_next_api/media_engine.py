@@ -110,7 +110,11 @@ class MediaEngine:
         x,y,w,h=beat['crop']
         crop=f"crop=w='max(2,trunc(iw*{w}/2)*2)':h='max(2,trunc(ih*{h}/2)*2)':x=iw*{x}:y=ih*{y}"
         motion=beat.get('motion','static');span=max(1,frames-1)
-        fit=f'scale={width}:{height}:force_original_aspect_ratio=decrease,pad={width}:{height}:(ow-iw)/2:(oh-ih)/2:color=0x0d242a,setsar=1'
+        # Preserve the selected panel over a subdued backdrop from the same crop.
+        fit=(f'split=2[frontsource][backsource];'
+             f'[backsource]scale={width}:{height}:force_original_aspect_ratio=increase,crop={width}:{height},boxblur=20:2,eq=brightness=-0.22[back];'
+             f'[frontsource]scale={width}:{height}:force_original_aspect_ratio=decrease[front];'
+             f'[back][front]overlay=(W-w)/2:(H-h)/2,setsar=1')
         if motion=='scroll_down':
             # Move a landscape viewport through the selected tall source region.
             viewport=f"crop=w=iw:h='min(ih,max(2,trunc(iw*{height}/{width}/2)*2))':x=0:y='(ih-oh)*min(t/{span/self.fps},1)'"
@@ -146,7 +150,7 @@ class MediaEngine:
                 pcm_all.extend(padded)
                 filters=self.shot_filters(beat,width,height,frames)
                 clip=folder/f'clip-{i}.mp4'
-                clip_identity=sha({'source':asset['sha256'],'crop':beat['crop'],'frames':frames,'fps':self.fps,'size':[width,height],'motion':beat.get('motion','static'),'renderer':'ffmpeg-x264-v3-vbv1000'})
+                clip_identity=sha({'source':asset['sha256'],'crop':beat['crop'],'frames':frames,'fps':self.fps,'size':[width,height],'motion':beat.get('motion','static'),'renderer':'ffmpeg-x264-v4-vbv1000-panelbackdrop'})
                 cached_clip=self.read_cache('clip',clip_identity)
                 if cached_clip is not None:
                     clip.write_bytes(cached_clip);clip_cache_hits+=1
