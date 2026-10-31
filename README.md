@@ -45,7 +45,7 @@ make test check-contracts test-media
 npm --prefix web run build
 ```
 
-The complete suite last passed 32 tests before the latest image/OCR/pronunciation fixes. An 19-test offline subset and latest frontend build have since passed; a combined full rerun is pending Engine recovery. The separate synthetic media smoke is not full episode acceptance. No blueprint ticket is declared complete solely because tests pass.
+Hosted CI passed all 46 tests, frontend/runtime-contract checks, clean full application container startup and proxy-to-worker-to-private-export smoke for code 02f68ae. A 19-test offline subset and latest frontend build also passed on the Mac. The full local rerun remains pending Engine recovery. The separate synthetic media smoke is not full episode acceptance. No blueprint ticket is declared complete solely because tests pass.
 
 Ports bind only to loopback: web 3000, API 8000, PostgreSQL 56473, private object store 59473, store console 59474. Dedicated Compose project: `v2manhwa-local`. Never substitute another application's resources.
 

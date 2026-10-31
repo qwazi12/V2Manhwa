@@ -7,7 +7,7 @@ No full blueprint ticket is declared complete. LOCAL PARTIAL means implemented b
 | FNS-001 | Independent repo/history, isolation tests, earlier hosted CI | Private repository gate, expanded CI run/review |
 | FNS-002 | Connected responsive studio, latest production build | Latest complete mobile/browser regression, owner acceptance |
 | FNS-003 | Modular API, strict inputs, generated runtime contract | Complete strict response contracts and future endpoint coverage |
-| FNS-004 | API/web/workers containerized, images built | Engine start recovery, fresh-machine startup and voice installer validation |
+| FNS-004 | API/web/workers containerized, images built | Fresh hosted full-stack startup/HTTP smoke passed; Mac Engine recovery and optional voice installer validation remain |
 | FNS-005 | Local owner sessions, revocation/CSRF/Origin | OIDC/MFA, invited roles, HTTPS, distributed limits |
 | FNS-006 | Full schema + reversible migrations, audit/snapshots/outbox | Generic outbox consumers, staging verification |
 | FNS-007 | Private CAS originals/exports, signed session URLs/range | Archives/antivirus pipeline, staging storage policy |
@@ -61,3 +61,5 @@ No full blueprint ticket is declared complete. LOCAL PARTIAL means implemented b
 | FNS-055 | Manual findings, job states and observed runtime | Per-stage reliability/human-hours/creative dashboard |
 
 Immediate blockers: Docker Desktop restart is pending; latest full suite/browser/runtime contract and real-source import wait on it. Live provider/account/cloud features also need independently authorized resources; no account or spend consent has been inferred.
+
+Hosted verification update: code 02f68ae passed 46 tests, frontend/runtime-contract checks, clean application container startup, and the complete HTTP proxy-to-worker-to-private-MP4 smoke in run 41195598808. Local Mac restart and real-source app import remain blocked. No full roadmap ticket is promoted solely from CI evidence.

@@ -29,3 +29,8 @@
 - User declined optional vidIQ analysis. No vidIQ service call/credits. Public YouTube playback was unavailable, so exact reference pacing/audio remains unverified.
 - User attested permission for processing and public distribution of the supplied source. Preserve that statement without inventing the rightsholder name or license document. This authorizes media preparation, not an upload/release action.
 - A standalone private-draft utility can use the same media engine while infrastructure is down. It writes no application state or owner approvals and is not an application fallback or end-to-end runtime proof.
+
+## 2026-10-31 — Fresh-container verification during local Engine outage
+
+- Use the existing new-repository CI runner to verify clean container startup and the complete Next proxy → authenticated API → dedicated PostgreSQL/MinIO → durable worker → private export path, while the owner Mac Engine is unavailable. Only original fixture media is used in CI.
+- Keep this HTTP smoke separate from browser playback, source owner review and release approval. A passing hosted build does not imply the Mac runtime has recovered or the full 55-ticket platform is complete.
